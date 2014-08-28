@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.ScrumblerEvent">
+<Super>%Persistent</Super>
+<TimeCreated>63361,38278.96604</TimeCreated>
+
+<Property name="Task">
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Events</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="ScrumblerUser">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Events</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ScrumblerUserIndex">
+<Properties>ScrumblerUser</Properties>
+</Index>
+
+<Property name="ScrumblerGroup">
+<Type>Scrumbler.ScrumblerGroup</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Events</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ScrumblerGroupIndex">
+<Properties>ScrumblerGroup</Properties>
+</Index>
+
+<Property name="EType">
+<Description>
+1..n - указываем тип события (Например: 1 - Создан новый проект)</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Events</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="Comment">
+<Type>Scrumbler.Comment</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Events</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CommentIndex">
+<Properties>Comment</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.ScrumblerEventD</DataLocation>
+<DefaultData>ScrumblerEventDefaultData</DefaultData>
+<IdLocation>^Scrumbler.ScrumblerEventD</IdLocation>
+<IndexLocation>^Scrumbler.ScrumblerEventI</IndexLocation>
+<StreamLocation>^Scrumbler.ScrumblerEventS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ScrumblerEventDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Task</Value>
+</Value>
+<Value name="3">
+<Value>Event</Value>
+</Value>
+<Value name="4">
+<Value>ScrumblerUser</Value>
+</Value>
+<Value name="5">
+<Value>ScrumblerGroup</Value>
+</Value>
+<Value name="6">
+<Value>Data</Value>
+</Value>
+<Value name="7">
+<Value>Company</Value>
+</Value>
+<Value name="8">
+<Value>CreationTime</Value>
+</Value>
+<Value name="9">
+<Value>Comment</Value>
+</Value>
+<Value name="10">
+<Value>EType</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

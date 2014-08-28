@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.ScrumblerUser">
+<TimeCreated>63357,60088.539278</TimeCreated>
+
+<Method name="GetUsersByCompany">
+<Description>
+Возвращает всех пользователей в компании</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>CompanyID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+
+		#dim SQL As %String="select * from Scrumbler.ScrumblerUser where Company="_CompanyID
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetUsersByCompanyOrAllNotIsGroup">
+<Description>
+Возвращает всех пользователей в компании (или всех) не состоящих в данной группе</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Company:%Boolean,Group</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set st=$$$OK
+		set SQLADD=""
+		set CompanyID=##class(WEB.Auth).GetCurrentCompany()
+		if (##class(Scrumbler.ScrumblerGroup).%ExistsId(Group)){
+		if (Company){if (##class(Scrumbler.Company).%ExistsId(CompanyID)){set SQLADD="SUSER.Company="_CompanyID_ " AND "}}
+		set SQL ="SELECT "_
+					"SUSER.ID, Util.Util_CONCAT(SUSER.LastName, ' ', SUSER.FirstName, ' ', SUSER.MiddleName ) AS FullName "_
+				 "FROM Scrumbler.ScrumblerUser AS SUSER "_
+				 "WHERE "_
+				 	SQLADD_
+				 	"SUSER.ID NOT IN (SELECT ScrumblerUser->ID FROM Scrumbler.ScrumblerUserGroup WHERE ScrumblerGroup->ID="_Group_" )"
+				 
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+		}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetUsersByGroup">
+<Description>
+Возвращает всех пользователей в группе</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+  	set st=$$$OK
+	if (##class(Scrumbler.ScrumblerGroup).%ExistsId(ID))
+	{
+		set group=##class(Scrumbler.ScrumblerGroup).%OpenId(ID)
+		if (group.isOpen||##class(Scrumbler.Logic.ScrumblerUser).IsTheUserGroup(,ID)) // TODO добавить вставку для мегаадмина
+		{
+		set SQL="select ID, ScrumblerUser->Gravatar, Util.Util_CONCAT(ScrumblerUser->FirstName,' ',ScrumblerUser->LastName,' ',ScrumblerUser->MiddleName ) As FullName, "_
+					"ScrumblerUser->ID As UserID "_
+				"from Scrumbler.ScrumblerUserGroup where ScrumblerGroup="_ID
+    	try{
+	    	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    	}catch ex{set st=ex.AsStatus()}	
+		}
+	}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetUsers">
+<Description>
+Возвращает всех пользователей </Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+		set Now=$P($H,",",1)
+		set SQL="SELECT "_
+					"ID, FirstName, LastName, MiddleName, Gravatar, DOB, DATEDIFF( year, DOB, "_Now_" ) As Age, "_
+					"Util.Util_CONCAT( FirstName, ' ', LastName, ' ', MiddleName )  AS FullName, "_
+					"CreationTime As RegDate, Company->Name As Company "_
+				"FROM Scrumbler.ScrumblerUser "_
+				"WHERE isActive=1 "
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+      
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="SearchUser">
+<Description>
+Поиск среди пользователей</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+</Method>
+
+<Method name="GetUserByID">
+<Description>
+Возвращаем пользователя  </Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if (##class(Scrumbler.ScrumblerUser).%ExistsId(ID)){
+		#dim SQL As %String="select ID, FirstName, LastName, MiddleName, Gravatar, DOB, GitHubLogin from Scrumbler.ScrumblerUser where ID="_ID
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<Description>
+Создаем пользователя</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set user=##class(Scrumbler.ScrumblerUser).%New()
+
+		
+		set user.Email=$ZCONVERT(obj.Email,"I","UTF8")
+		set user.FirstName=$ZCONVERT(obj.FirstName,"I","UTF8")
+		set user.LastName=$ZCONVERT(obj.LastName,"I","UTF8")
+		
+		if (obj.GitHubLogin'=""){set user.GitHubLogin=$ZCONVERT(obj.GitHubLogin,"I","UTF8")}
+	
+		if (obj.GitHubPassword'=""){set user.GitHubPassword=$ZCONVERT(obj.GitHubPassword,"I","UTF8")}
+		
+		if (obj.MiddleName'=""){set user.MiddleName=$ZCONVERT(obj.MiddleName,"I","UTF8")}
+		set user.Gravatar=$ZCONVERT(obj.Gravatar,"I","UTF8")
+		if (obj.Password'=""){set st=user.SetPassword(obj.Password)}
+		set user.Weight=1		//obj.Weight
+		set user.UserType=1
+		
+		if (obj.DOB'=""){set user.DOB=$ZDATEH(obj.DOB,4)}
+		
+		if (obj.ImageID){set user.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+		set user.isActive=1
+		if (obj.uid'=""){
+			set data=##class(Util.TimeLinks).GetData(obj.uid)
+				if (data.Company'=""){
+					w data.Company,!
+					set user.Company=##class(Scrumbler.Company).%OpenId(data.Company)
+				}
+		}
+		set st= user.%Save()
+		
+		if (obj.uid'=""){
+			set data=##class(Util.TimeLinks).GetData(obj.uid)
+				if (data.Group'=""){
+					set group=##class(Scrumbler.ScrumblerUserGroup).%New()
+					set group.ScrumblerUser=user
+					set group.ScrumblerGroup=##class(Scrumbler.ScrumblerGroup).%OpenId(data.Group)
+					set st=group.%Save()
+				}
+		}
+		w obj.uid
+		if (st){
+			/// Отправляем ссылку на почу для подтверждения регистрации
+			  //do ##class(Util.Mail.SendMail).NewMail(user.ScrumblerUserGroups.%Id(),"optimainform@gmail.com","EmailConfirm")
+			}
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="LoginIsValid">
+<Description>
+Проверяем валидность Логина</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	
+		set count=0,Login=obj.Email
+		&sql(select Count(*) into:count from Scrumbler.ScrumblerUser where Email=:Login)
+		if count>0{	w "{""Status"":{""Login"":false}}"}
+		else 	  { w "{""Status"":{""Login"":true}}" }
+						
+	}
+	Catch ex{set st=ex.ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<Description>
+Обновляем пользователя</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set user=##class(Scrumbler.ScrumblerUser).%OpenId(obj.ID)
+		if (obj.Company'=""){set user.Company=##class(Scrumbler.Company).%OpenId(obj.Company)}
+		
+		//set user.Email=$ZCONVERT(obj.Email,"I","UTF8")
+		set user.FirstName=$ZCONVERT(obj.FirstName,"I","UTF8")
+		if (obj.GitHubLogin'=""){set user.GitHubLogin=$ZCONVERT(obj.GitHubLogin,"I","UTF8")}
+		if (obj.GitHubPassword'=""){set user.GitHubPassword=$ZCONVERT(obj.GitHubPassword,"I","UTF8")}
+		set user.LastName=$ZCONVERT(obj.LastName,"I","UTF8")
+		if (obj.MiddleName'=""){set user.MiddleName=$ZCONVERT(obj.MiddleName,"I","UTF8")}
+		set user.Gravatar=$ZCONVERT(obj.Gravatar,"I","UTF8")
+		//if (obj.Password'=""){set st=user.SetPassword(obj.Password)}
+		set user.UserType=1
+		set user.Weight=1  //obj.Weight
+		if (obj.DOB'=""){set user.DOB=$ZDATEH(obj.DOB,4)}
+		if (obj.ImageID){set user.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+		set user.isActive=1
+		set st= user.%Save()
+		w st
+		if (st){
+			/// Отправляем ссылку на почу для подтверждения регистрации
+			}
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<Description>
+Удаляем пользователя</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+</Method>
+
+<Method name="GetUsersInGroupByTask">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	#dim GroupID As %String=""
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		set task=##class(Scrumbler.Task).%OpenId(ID)
+		set GroupID=task.ScrumblerGroup.%Id()
+		if (GroupID'=""){
+			#dim SQL As %String="select ScrumblerUser->ID As ID, ScrumblerUser->FirstName, ScrumblerUser->LastName, ScrumblerUser->MiddleName from Scrumbler.ScrumblerUserGroup where ScrumblerGroup="_GroupID
+    		try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    		catch ex{set st=ex.AsStatus()}
+    		}
+    	else
+    		{
+	    		Set %response.Status="404 Not Found"
+	    		w "{""Status"":{""Success"":false,""Data"":1}}"
+	    	}
+    	
+	}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="IsTheUserGroup">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>UserID="",GroupID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (UserID=""){set UserID=##class(WEB.Auth).GetCurrentUser()}
+	#dim st as %Boolean=0
+	if (##class(Scrumbler.ScrumblerGroup).%ExistsId(GroupID)){
+		&sql(select count(*) into :count from Scrumbler.ScrumblerUserGroup where ScrumblerUser =:UserID and ScrumblerGroup=:GroupID)
+		if (count>0){set st=1}
+	}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Registration">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+		#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set user=##class(Scrumbler.ScrumblerUser).%New()
+		if (obj.uid'=""){
+			set user.Email=$ZCONVERT(obj.Email,"I","UTF8")
+			set user.FirstName=$ZCONVERT(obj.FirstName,"I","UTF8")
+			set user.LastName=$ZCONVERT(obj.LastName,"I","UTF8")
+			if (obj.MiddleName'=""){set user.MiddleName=$ZCONVERT(obj.MiddleName,"I","UTF8")}
+			if (obj.Gravatar'=""){set user.Gravatar=$ZCONVERT(obj.Gravatar,"I","UTF8")}
+		if (obj.GitHubLogin'=""){set user.GitHubLogin=$ZCONVERT(obj.GitHubLogin,"I","UTF8")}	
+		//if (obj.GitHubPassword'=""){set user.GitHubPassword=$ZCONVERT(obj.GitHubPassword,"I","UTF8")}
+			set st=user.SetPassword(obj.Password)
+			set user.Weight=1		
+			set user.UserType=1
+		
+			if (obj.DOB'=""){set user.DOB=$ZDATEH(obj.DOB,4)}
+			
+			if (obj.Telephone'=""){set user.Telephone=$ZCONVERT(obj.Telephone,"I","UTF8")}
+		
+		
+			set user.isActive=1
+			set data=##class(Util.TimeLinks).GetData(obj.uid)
+				if (data.Company'=""){
+					set user.Company=##class(Scrumbler.Company).%OpenId(data.Company)
+				}
+	         zw user
+			set st= user.%Save()
+		
+			if (data.Group'=""){
+				set group=##class(Scrumbler.ScrumblerUserGroup).%New()
+				set group.ScrumblerUser=user
+				set group.ScrumblerGroup=##class(Scrumbler.ScrumblerGroup).%OpenId(data.Group)
+				set st=group.%Save()
+				
+				
+			}
+			
+
+
+		if (st){
+			
+			// Событие новый пользователь
+				set st=##class(Scrumbler.Logic.Event).Create2(user,,,##class(Scrumbler.ScrumblerGroup).%OpenId(data.Group),6)
+				// Новый участник группы
+				set st=##class(Scrumbler.Logic.Event).Create2(user,,,##class(Scrumbler.ScrumblerGroup).%OpenId(data.Group),8)
+				
+			
+			// Запускаем сессию
+			set st=##class(WEB.Session).CreateSession(user.%Id())
+			do ##class(WEB.Auth).SetLoginResponse(user.FirstName,user.Gravatar)
+			
+			
+			/// Отправляем ссылку на почу для подтверждения регистрации
+			do ##class(Util.Mail.SendMail).NewMail(user.%Id(),obj.Password,"UserInvited")
+			s UID = obj.uid
+			//w !,UID
+			}
+		}
+	}
+	Catch ex{set st=ex.AsStatus()}
+    &sql(delete from Util.TimeLinks where SSN=:UID)
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="UpdateGitHubLogin">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set user=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+		set user.GitHubLogin=$ZCONVERT(obj.login,"I","UTF8")
+		set user.isActive=1
+		set st= user.%Save()
+		w st
+		
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AutoGitHubLogin">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set user=##class(WEB.Auth).GetCurrentUser()
+		#dim SQL As %String="select GitHubLogin from Scrumbler.ScrumblerUser where ID="_user
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	
+  	quit st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

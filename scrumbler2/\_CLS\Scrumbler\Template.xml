@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Template">
+<Super>%Persistent</Super>
+<TimeCreated>63357,52485.743393</TimeCreated>
+
+<Property name="Type">
+<Description>
+тип тэга для выборки</Description>
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Data">
+<Description>
+Собственно само содержимое элемента</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="Author">
+<Description>
+Кто это сделал!!!</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>TagsAuthor</Inverse>
+<Relationship>1</Relationship>
+<Required>1</Required>
+</Property>
+
+<Index name="AuthorIndex">
+<Properties>Author</Properties>
+</Index>
+
+<Property name="Image">
+<Description>
+Логотип для тэга</Description>
+<Type>FileBase.Image</Type>
+<Cardinality>one</Cardinality>
+<Inverse>TagImages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ImageIndex">
+<Properties>Image</Properties>
+</Index>
+
+<Property name="Tags">
+<Description>
+Список скилов где используется этот тэг</Description>
+<Type>Scrumbler.Tag</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Tag</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Targets">
+<Description>
+Список задач где используется эта цель</Description>
+<Type>Scrumbler.Target</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Target</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Company">
+<Description>
+Принадлежность компании</Description>
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Templates</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TemplateD</DataLocation>
+<DefaultData>TemplateDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TemplateD</IdLocation>
+<IndexLocation>^Scrumbler.TemplateI</IndexLocation>
+<StreamLocation>^Scrumbler.TemplateS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TemplateDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Author</Value>
+</Value>
+<Value name="3">
+<Value>Type</Value>
+</Value>
+<Value name="4">
+<Value>Data</Value>
+</Value>
+<Value name="5">
+<Value>CreationTime</Value>
+</Value>
+<Value name="6">
+<Value>Image</Value>
+</Value>
+<Value name="7">
+<Value>Company</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Util.TimeLinks">
+<Super>%Persistent</Super>
+<TimeCreated>63363,310.725131</TimeCreated>
+
+<UDLText name="T">
+<Content><![CDATA[
+// Возможно здесь целесобразнее использовать Setter, т.к. поле генерируется 1 раз?
+
+]]></Content>
+</UDLText>
+
+<Property name="SSN">
+<Type>%String</Type>
+<SqlComputeCode>set {SSN}=..CreateSSN()</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Index name="SSNkey">
+<Properties>SSN</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Method name="CreateSSN">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim str As %String="1"
+	set list1=$lb("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+	set list2=$lb("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")
+	for i=1:1:20
+	{
+		if ($r(2)){set str=str_$LIST(list1,$r($LL(list1))+1)_$r(99)}
+		else{ set str=str_$LIST(list2,$r($LL(list2))+1)_$r(99)}	
+	}
+	Q str
+]]></Implementation>
+</Method>
+
+<Property name="StartTime">
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+<ReadOnly>1</ReadOnly>
+</Property>
+
+<Property name="EndTime">
+<Type>%TimeStamp</Type>
+<SqlComputeCode>set {EndTime}=$System.SQL.DATEADD("minute",1,{StartTime})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="Data">
+<Type>%String</Type>
+<MultiDimensional>1</MultiDimensional>
+</Property>
+
+<Property name="Company">
+<Type>%String</Type>
+</Property>
+
+<Property name="Group">
+<Type>%String</Type>
+</Property>
+
+<Property name="Author">
+<Description>
+кому принадлежит запись</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Method name="CreateLink">
+<Description>
+Создаем ссылку</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Company="",Group=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set link=##class(Util.TimeLinks).%New()
+	set link.Group=Group
+	set link.Company=Company
+	Set tSC=link.%Save()
+	Q link.SSN
+]]></Implementation>
+</Method>
+
+<Method name="CheckLink">
+<Description>
+Проверяем ссылку</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>SSN</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Boolean=0
+	#dim count As %Integer=0
+	&sql(select count(*),StartTime,EndTime into:count,:StartTime,:EndTime from Util.TimeLinks where SSN=:SSN)
+	if (count=1) 
+	{
+		if ($System.SQL.DATEDIFF("hour",EndTime,$zdt($h,3))<=24){set st=1}
+		else{ &sql(delete from Util.TimeLinks where SSN=:SSN)}
+	}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetData">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>uid</FormalSpec>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[
+	set st=##class(%ZEN.proxyObject).%New()
+	&sql(select ID into:ID from Util.TimeLinks where SSN=:uid)
+	if (##class(Util.TimeLinks).%ExistsId(ID)){
+		set link=##class(Util.TimeLinks).%OpenId(ID)
+		set st.Company=link.Company
+		set st.Group=link.Group
+		}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Set">
+<FormalSpec>index:%String,value:%String</FormalSpec>
+<Implementation><![CDATA[	Set i%Data(index)=value Quit
+]]></Implementation>
+</Method>
+
+<Method name="CheckLinkJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>UID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim count As %Integer=0
+	//todo: тут ещё время жизни проверять нужно
+	&sql(select count(*) into:count from Util.TimeLinks where SSN=:UID)
+	if (count=1) 
+	{
+		w "{""Status"":true}"
+		
+	}
+	else{
+		w "{""Status"":false}"
+		}
+	
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Util.TimeLinksD</DataLocation>
+<DefaultData>TimeLinksDefaultData</DefaultData>
+<IdLocation>^Util.TimeLinksD</IdLocation>
+<IndexLocation>^Util.TimeLinksI</IndexLocation>
+<StreamLocation>^Util.TimeLinksS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TimeLinksDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>SSN</Value>
+</Value>
+<Value name="3">
+<Value>StartTime</Value>
+</Value>
+<Value name="4">
+<Value>Company</Value>
+</Value>
+<Value name="5">
+<Value>Group</Value>
+</Value>
+<Value name="6">
+<Value>Author</Value>
+</Value>
+<Value name="7">
+<Value>EndTime</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

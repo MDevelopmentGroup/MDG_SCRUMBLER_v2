@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Task">
+<TimeCreated>63357,44364.432698</TimeCreated>
+
+<Method name="TotalTasks">
+<Description>
+Рассчёт общего количества крайних задач</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim TT as %Integer=0
+	set key=""
+	set Task=##class(Scrumbler.Task).%OpenId(ID)
+	if ('Task.LastElement)
+	{
+		//w Task.Tasks.Count()
+		while Task.Tasks.GetNext(.key){		//key = id потомка
+			set a=Task.Tasks.GetAt(key)  //открылся потомок
+			if (a.LastElement){				// если последний добавить себя в список
+				//set endlevellist=endlevellist_","_a.ID
+				set TT=TT+1
+			}
+			else
+			{
+				set TT=TT+a.TotalTasks
+			}
+		}
+	}
+	ret TT
+]]></Implementation>
+</Method>
+
+<Method name="EndLevelList">
+<Description>
+метод для получения списка крайних задач (Работает только со свойством Scrumbler.Task.EndLevelList)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Id</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim endlevellist As %String=""
+	set key=""
+	set Task=##class(Scrumbler.Task).%OpenId(Id)
+	if ('Task.LastElement)
+	{
+		//w Task.Tasks.Count()
+		while Task.Tasks.GetNext(.key){		//key = id потомка
+			set a=Task.Tasks.GetAt(key)  //открылся потомок
+			if ('a.LastElement){				// если последний добавить себя в список
+
+				set endlevellist=a.EndLevelList
+			}								
+			else
+			{
+			
+				set endlevellist=endlevellist_","_a.%Id()
+					
+				
+			}
+		}
+	}
+	ret endlevellist
+]]></Implementation>
+</Method>
+
+<Method name="TotalIsHitTasks">
+<Description>
+Рассчёт успешно завершённых задач</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Id</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim tct as %Integer=0
+	set key=""
+	set Task=##class(Scrumbler.Task).%OpenId(Id)
+	if ('Task.LastElement)
+	{
+		while Task.Tasks.GetNext(.key){		//key = id потомка
+			set a=Task.Tasks.GetAt(key)  //открылся потомок
+			if (a.LastElement){				// если последний
+				//проверить выполнение задачи
+				if (a.isHited){
+					set tct=tct+1 //плюс адын +1
+				}
+			} //это узел прибавить его TotalIsHitTasks
+			else
+			{
+				set tct=tct+a.TotalIsHitTasks
+			}
+		}		
+	}
+	ret tct
+]]></Implementation>
+</Method>
+
+<Method name="IsMissingHitTasks">
+<Description>
+Рассчёт "молока".</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Id</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim tct as %Integer=0
+	set key=""
+	set Task=##class(Scrumbler.Task).%OpenId(Id)
+	if (Task.MasterTask'=""){
+		set mt=##class(Scrumbler.Task).%OpenId($P(Task.SSN,"|",1))
+	}
+	else
+	{
+		set mt=Task
+	}
+	if (mt.Settings.CalculatedMissingTask){
+		if ('Task.LastElement)
+		{
+			while Task.Tasks.GetNext(.key){		//key = id потомка
+				set a=Task.Tasks.GetAt(key)  //открылся потомок
+				if (a.LastElement){				// если последний
+					//проверить выполнение задачи
+					if (('a.isHited) &&(a.TimeStampEnd'="")){
+						set tct=tct+1 //плюс адын +1
+					}
+				} //это узел прибавить его TotalIsHitTasks
+				else
+				{
+					set tct=tct+a.IsMissingHitTasks
+				}
+			}		
+		}
+	}
+	ret tct
+]]></Implementation>
+</Method>
+
+<Method name="EstimatedCostProj">
+<Description>
+Рассчёт оценочной стоимости проекта</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim ecp As %Integer=0
+	set DevelopersCount=1
+	set key=""
+	set task=##class(Scrumbler.Task).%OpenId(id)
+	if 'task.LastElement {set DevelopersCount=task.ScrumblerGroup.ScrumblerUserGroups.Count()}
+	
+	set ecp=task.TotalTime*150*DevelopersCount
+	ret ecp
+]]></Implementation>
+</Method>
+
+<Method name="TotalTime">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>id</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim totaltime As %Integer=0
+	set DevelopersCount=1
+
+	set task=##class(Scrumbler.Task).%OpenId(id)
+	if (('task.LastElement) && (task.ScrumblerGroup'="")&&(task.ScrumblerGroup.ScrumblerUserGroups.Count()'=0) ) {set DevelopersCount=task.ScrumblerGroup.ScrumblerUserGroups.Count()}
+	set totaltime=((task.TotalTasks*(12+0.3*12))/9)/DevelopersCount
+	ret totaltime
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<Description>
+Создаем задачу/проект</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{	
+		//Проверка на существование задача с таким же именем
+		set oCount=0
+		&sql(select count(id) as oCount from Scrumbler.Task where Name=:obj.Name and MasterTask=:obj.MasterTask)
+		if (oCount=0){
+			$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+			
+			set task=##class(Scrumbler.Task).%New()
+			if (obj.Dependence'=""){
+				set task.Dependence=obj.Dependence}
+			set task.Name=$ZCONVERT(obj.Name,"I","UTF8")
+			if (obj.MasterTask'=""){
+				set MasterTask=##class(Scrumbler.Task).%OpenId(obj.MasterTask)
+				set task.MasterTask=MasterTask
+				//set task.ScrumblerGroup=MasterTask.ScrumblerGroup
+				}
+			set task.TaskWeight=obj.TaskWeight
+			set task.Release=1
+			
+			set task.UserInitiator=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+			set group=""
+			if (obj.ScrumblerGroup'=""){
+				set group=##class(Scrumbler.ScrumblerGroup).%OpenId(obj.ScrumblerGroup)
+				set task.ScrumblerGroup=group}
+				
+			set task.isOpenSource=obj.isOpenSource
+			if (obj.ImageID'=""){
+				set task.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+			if (obj.Settings'=""){
+				set task.Settings.CalculatedMissingTask=obj.CalculatedMissingTask
+				set task.Settings.CalculatedResStat=obj.CalculatedResStat
+				set task.Settings.CalculatedTargets=obj.CalculatedTargets
+				}
+				set task.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+
+			set st=task.%Save()
+			/// Комментарий
+			set comment=""
+			if (obj.CommentBody'=""){set comment= ##class(Scrumbler.Logic.Comment).Create(task, obj,0)}
+			/// Тэги
+			if (obj.Tags'=""){
+				if (obj.CommentBody'=""){set st=##class(Scrumbler.Logic.Tags).AddTagsForComment(comment,obj)}
+				set st=##class(Scrumbler.Logic.Tags).AddTagsForTask(task,obj)}
+			
+			if (obj.MasterTask'=""){
+				///Событие Новая задача (декомпозиция)
+				set st=##class(Scrumbler.Logic.Event).Create(task,comment,group,2)
+				}
+			else{
+				///Событие Новый проект
+				set st=##class(Scrumbler.Logic.Event).Create(task,comment,group,1)
+				}
+			/// Техдокументация
+			set st=##class(Scrumbler.Logic.TechnoDoc).Create(obj,task,0)	
+		}
+		else
+		{
+			w "Задача с таким именем существует."
+			/// Уведомления
+		}
+	}
+	
+
+	
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<Description>
+Обновление проекта / Задачи</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	#dim st As %Status=$$$OK
+		
+	Try
+	{	
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set task=##class(Scrumbler.Task).%OpenId(obj.ID)
+	if (obj.Dependence'=""){
+		set task.Dependence=obj.Dependence}
+	set task.Name=$ZCONVERT(obj.Name,"I","UTF8")
+	if (obj.MasterTask'=""){
+		//set task.MasterTask=##class(Scrumbler.Task).%OpenId(obj.MasterTask)
+		}
+	set task.TaskWeight=obj.TaskWeight
+	w ##class(WEB.Auth).GetCurrentUser()
+	//set task.UserInitiator=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set group=""
+	if (obj.ScrumblerGroup'=""){
+		set group=##class(Scrumbler.ScrumblerGroup).%OpenId(obj.ScrumblerGroup)
+		set task.ScrumblerGroup=group}
+	set task.isOpenSource=obj.isOpenSource
+	if (obj.ImageID'=""){
+		set task.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+	if (obj.Settings'=""){
+		set task.Settings.CalculatedMissingTask=obj.CalculatedMissingTask
+		set task.Settings.CalculatedResStat=obj.CalculatedResStat
+		set task.Settings.CalculatedTargets=obj.CalculatedTargets
+		}
+				
+		/// Сохраняем Задачу
+	set st=task.%Save()
+
+		/// Комментарий
+	set comment= ##class(Scrumbler.Logic.Comment).Create(task, obj,2)
+	/// Тэги
+	if (obj.Tags'=""){
+		set st=##class(Scrumbler.Logic.Tags).AddTagsForComment(comment,obj)
+		set st=##class(Scrumbler.Logic.Tags).AddTagsForTask(task,obj)}
+	
+	if (obj.MasterTask'=""){
+		///Обновление задачи
+		set st=##class(Scrumbler.Logic.Event).Create(task,comment,group,11)
+		}
+	else{
+		///Обновление проекта
+		set st=##class(Scrumbler.Logic.Event).Create(task,comment,group,10)
+		}	
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Get0">
+<Description>
+ Возвращает проекты 0-го уровня</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>All=0</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set st=$$$OK
+	set SQLADD=" and IsDelete=0"
+	if (All){set SQLADD=" "}
+	set SQL ="select ST.*, Util.Util_GetTagsForTask(ST.ID) As Tags from Scrumbler.Task AS ST where ST.MasterTask is null"_SQLADD
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="Get">
+<Description>
+Возвращает задачи n-го кровня</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID,All=0</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim SSN As %String=""
+	set SQLADD=" and IsDelete=0"
+	if (All){set SQLADD=" "}
+	set st=$$$OK
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		set task=##class(Scrumbler.Task).%OpenId(ID)
+		if (task.MasterTask=""){set SSN=task.%Id()}
+		else{set SSN=task.SSN_"|"_ID}
+		#dim SQL As %String="select *, Util.Util_GetTagsForTask(ID) As Tags from Scrumbler.Task where SSN='"_SSN_"'"_SQLADD
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<Description>
+Удаляем дерево или задачу</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+ 	#dim st As %Status=$$$OK
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set TempList= $LISTFROMSTRING(task.ListIDOfTree,",")
+	//set List ="( "_$REPLACE(task.ListIDOfTree,",",", ")_" )"
+	&sql(update Scrumbler.Task set IsDelete=1, UserShooter=null where ID %INLIST :TempList)
+	&sql(delete Scrumbler.Lap where ID %INLIST :TempList And TimeStampBegin!='' And TimeStampEnd is null And isHited=0)
+		
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetTaskByID">
+<Description>
+Возвращаем задачу по ID</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		#dim SQL As %String="select *, Util.Util_GetTagsForTask(ID) As Tags from Scrumbler.Task where ID="_ID
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetBreadcrumb">
+<Description>
+Меню хлебные крошки</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		set task=##class(Scrumbler.Task).%OpenId(ID)
+		set SSN=""
+		if (task.SSN'=""){set SSN=task.SSN_"|"_ID}
+		else{set SSN=task.%Id()}
+		Set LIST=$REPLACE(SSN,"|",", ")
+
+		#dim SQL As %String="select ID, Name from Scrumbler.Task where ID IN ( "_LIST_" )"
+		
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="SSN">
+<Description>
+Генерируем составной ключ</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim SSN as %String=""
+	if (##class(Scrumbler.Task).%ExistsId(ID)){set Task=##class(Scrumbler.Task).%OpenId(ID),SSN=Task.SSN
+	 if (Task.SSN=""){set SSN=ID}else{set SSN=SSN_"|"_ID}
+	}
+	ret SSN
+]]></Implementation>
+</Method>
+
+<Method name="LastElement">
+<Description>
+Последний элемент</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Boolean=1
+	set Task=##class(Scrumbler.Task).%OpenId(ID)
+	if (Task.Tasks.Count()>0){
+		set st=0
+		}
+	ret st
+]]></Implementation>
+</Method>
+
+<Method name="ListIDOfTree">
+<Description>
+Перечисляет в узлах элементы дерева</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim endlevellist As %String=""
+
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	if (task.LastElement=1){
+		set endlevellist=task.%Id()
+		}
+	else{
+		set key=""
+			while task.Tasks.GetNext(.key){		
+				set a=task.Tasks.GetAt(key)  //открылся потомок
+				set endlevellist=endlevellist_","_a.ListIDOfTree
+			}
+			set endlevellist=task.%Id()_""_endlevellist
+		}
+
+	ret endlevellist
+]]></Implementation>
+</Method>
+
+<Method name="ViewTask">
+<Description>
+Просмотр задачи</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		set SQL="SELECT "_
+					"ID, Name, isHited, Util.Util_GetTagsForTask(ID) As Tags, "_
+					"Util.Util_GetComments(ID) As Comments, "_
+					"Util.Util_GetTechnoDocsByTaskID(ID) As TechnoDocs "_
+				"FROM Scrumbler.Task "_
+				"WHERE ID="_ID
+		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	}
+ //w !,SQL
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="ReleasesList">
+<Description>
+Релиз для узловах элементов</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set SSN=""
+	if (task.SSN'=""){set SSN=task.SSN_"|"_ID}
+	else{set SSN=ID} 
+	set str=""
+	if ('task.LastElement){	
+	set sql="select Release from Scrumbler.Task where SSN like '"_SSN_"%' group by Release"
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st= sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	set i=1
+	
+	while (res.%Next()'=0){ set str=str_i_",",i=i+1	
+		//w res.%Get("Release"),!
+	}
+	set str=$E(str,1,*-1)
+	}
+	else{
+		set str=task.Release
+		}
+	
+	Q str
+]]></Implementation>
+</Method>
+
+<Method name="Recovery">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		
+ 	#dim st As %Status=$$$OK
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set TempList= $LISTFROMSTRING(task.ListIDOfTree,",")
+	
+	&sql(update Scrumbler.Task set IsDelete=0 where ID %INLIST :TempList)
+	
+		
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

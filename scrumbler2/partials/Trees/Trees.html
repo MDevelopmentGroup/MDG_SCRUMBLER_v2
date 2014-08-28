@@ -1,0 +1,61 @@
+
+	<div class="row">
+		<div class="col-lg-3">
+	        <select class="form-control ng-pristine ng-valid" ng-model="FilterGroup" ng-change="ChangeFilter()">
+	        	<option value="">-----------</option>
+	        	<option value="{{Group.ID}}" ng-repeat="Group in GroupList">{{Group.Name}}</option>
+	        </select>
+		</div>
+	</div>
+	<br>
+	
+<div class="row" >
+    <div class="col-lg-{{ColLgSize}}">
+        <div class="" ng-repeat="item in ViewTrees" ng-click="SetShowItems($index,trees)" ng-show="item.filter">
+
+            <div class="row " >
+                <div class="col-lg-7 ">
+                    <div ng-bind-html="'[#{{item.ID}}].'+item.Name | TreesFilter:item.SSN">
+						
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                    <span ng-if="item.isHited" class="glyphicon glyphicon-ok"></span>
+                </div>
+
+                <div class="col-lg-3" >
+                    <button class="btn btn-default btn-sm" ng-click="set(item);SelectTreeItem=1 "><span class="glyphicon glyphicon-move"></span></button>
+                    <a href="#/CreateTask/{{item.ID}}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-th"></span></a>
+                    <button class="btn btn-default btn-sm" ng-click="test()"><span class="glyphicon glyphicon-comment"></span></button>
+                    <a href="#/Task/{{item.ID}}" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></a>
+                    <button ng-click="SetTree(item.ID,0)" class="btn btn-default btn-sm" ng-show="item.MasterTask | FilterMasterTask"><span class="glyphicon glyphicon-bookmark"></span></button>
+                </div>
+            </div>
+
+            <hr style="margin: 5px">
+        </div>
+    </div>
+    <div class="col-lg-6" ng-show="SubTreeShow">
+        <div class="row">
+            <button ng-click="cancel();SelectTreeItem=0" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-remove-sign"></span> {{Page.Trees.Cancel}}</button>
+        </div>
+        <div class="row">
+            <h3>[#{{item.ID}}].{{Name}}</h3>
+        </div>
+        <div class="" ng-repeat="item in trees">
+
+            <div class="row">
+                <a ng-click="SetTree(ID,item.ID)"  data-trigger="hover" data-type="success" data-title="{{Page.Trees.Move }} {{Name}} {{Page.Trees.Here}}" bs-tooltip>
+                <div class="col-lg-7">
+                    <div ng-bind-html="item.Name | TreesFilter:item.SSN"></div>
+                </div>
+                <div class="col-lg-3">
+
+                </div>
+                </a>
+            </div>
+
+            <hr style="margin: 5px">
+        </div>
+    </div>
+</div>

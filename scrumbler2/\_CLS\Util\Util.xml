@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Util.Util">
+<TimeCreated>63364,71537.926331</TimeCreated>
+
+<Method name="GetHEXMD5HashStream">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Stream:%Stream</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set Hash= $System.Encryption.MD5HashStream(Stream)
+	set hex="" f i=1:1:$L(Hash) set hex=hex_$J($ZHEX($A(Hash,i)),2)
+	set hex=$TR(hex," ","0")
+	Q hex
+]]></Implementation>
+</Method>
+
+<Method name="GetTagsForTask">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set sql="select ID AS RowID, Tag->ID AS ID, Tag->Data As text from Scrumbler.Tag  where Task="_ID
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	set jsonstring=""
+	while (res.%Next()'=0){
+		set jsonstring=jsonstring_"{""ID"":"_res.%Get("ID")_",""text"":"""_res.%Get("text")_""",""RowID"":"_res.%Get("RowID")_"},"
+	}
+	Q "["_$E(jsonstring,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="GetTagsForComment">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set sql="select ID AS RowID, Tag->ID AS ID, Tag->Data As text from Scrumbler.Tag  where Comment="_ID
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	set jsonstring=""
+	while (res.%Next()'=0){
+		set jsonstring=jsonstring_"{""ID"":"_res.%Get("ID")_",""text"":"""_res.%Get("text")_""",""RowID"":"_res.%Get("RowID")_"},"
+	}
+	Q "["_$E(jsonstring,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="CommentEditRule">
+<Description>
+Проверяем пользователя создавшего комментарий</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>CurrentUser:%String,AuthorUser:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	Set st=0
+	if (CurrentUser=AuthorUser){ set st=1}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="EditRule">
+<Description>
+Проверяем пользователя создавшего что-то</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>CurrentUser:%String,AuthorUser:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	Set st=0
+	if (CurrentUser=AuthorUser){ set st=1}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetImageURL">
+<Description>
+Создает ссылку на изображение</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ImageName:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+
+	set ServerIP=%request.GetCgiEnv("HTTP_HOST")
+
+	set WEBPart=%request.Application
+	set Folder="Image/Upload"
+	
+	Q "http://"_ServerIP_"/"_Folder_"/"_ImageName
+]]></Implementation>
+</Method>
+
+<Method name="GetComments">
+<Description>
+Возвращает все комментарии по задаче </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set user=##class(WEB.Auth).GetCurrentUser()
+	set sql="SELECT "_
+				" ID, CommentBody, CommentType, Util.Util_CommentEditRule("_user_", ComentAuthor->ID) as Edit, "_
+				"ComentAuthor->FirstName, ComentAuthor->LastName, ComentAuthor->Gravatar "_
+			"FROM Scrumbler.Comment  "_
+			"WHERE Task="_ID
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	set jsonstring=""
+	while (res.%Next()'=0){
+		set jsonstring=jsonstring_"{""ID"":"_res.%Get("ID")_",""CommentBody"":"""_res.%Get("CommentBody")_""",""CommentType"":"""_res.%Get("CommentType")_""",""FirstName"":"""_res.%Get("FirstName")_""",""LastName"":"""_res.%Get("LastName")_""",""Gravatar"":"""_res.%Get("Gravatar")_""",""Edit"":"""_res.%Get("Edit")_"""},"
+	}
+	Q "["_$E(jsonstring,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="CONCAT">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Args...</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set str=""
+	for i=1:1:Args {set str=str_Args(i)}
+	q str
+]]></Implementation>
+</Method>
+
+<Method name="GetTagsForGroup">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set sql="select ID AS RowID, Tag->ID AS ID, Tag->Data As text from Scrumbler.Tag  where Task->ID IN "_
+			"(select ID from Scrumbler.Task where ScrumblerGroup="_ID_" ) "_
+			"group by Tag->Data"
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	set jsonstring=""
+	while (res.%Next()'=0){
+		set jsonstring=jsonstring_"{""ID"":"_res.%Get("ID")_",""text"":"""_res.%Get("text")_""",""RowID"":"_res.%Get("RowID")_"},"
+	}
+	Q "["_$E(jsonstring,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocSourcesJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	#dim st As %String=""
+	set result = ##class(%Library.ResultSet).%New("Scrumbler.TechnoDoc.Source:GetSourcesByTechnoDocID")
+  	do result.%Execute(ID)
+  	while (result.Next() '=0){
+	  	set st=st_"{""SourceID"":"_result.Get("ID")_",""URL"":"""_$replace($replace($zcvt(result.Get("URL"), "O", "JS"), "\/", "/"), "\'", "'")_""",""Title"":"""_result.Get("Title")_"""},"
+	}
+	
+	Q "["_$EXTRACT(st,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[
+// todo: тут нам становится печально
+
+]]></Content>
+</UDLText>
+
+<Method name="GetTechnoDocSourceTextsJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	//w !,"***** "_ID_" *****"
+	#dim st As %String=""
+	
+	set result = ##class(%Library.ResultSet).%New("Scrumbler.TechnoDoc.SourceText:GetSourceTextsByTechnoDoсID")
+  	do result.%Execute(ID)
+  	while (result.Next() '=0){
+	  	
+	  	/*
+	  	set body = $replace($replace($zcvt(result.Get("Body"), "O", "JS"), "\/", "/"), "\'", "'")
+	  	set body = $replace($replace(body, $c(13,10),"  "), "\""", "_")
+	  	set body = $replace($replace(body, $c(13,10),"  "), "\""", "_")
+	  	*/
+	  	//set body=result.Get("Body")
+	  	set body = $replace($replace($zcvt(result.Get("Body"), "O", "JS"), "\/", "/"), "\'", "'")
+	  	//set body = result.Get("Body")
+	  	//set body = $replace($replace($zcvt(result.Get("Body"), "O", "UTF8"), "\/", "/"), "\'", "'")
+	  	//set body= $ZCONVERT(body,"O","UTF8")
+	  	//set body= $zcvt(x, "O", "JSON")
+ 	  	set st=st_"{""SourceTextID"":"_result.Get("ID")_","_
+	  	"""Language"":"""_result.Get("Language")_""","_
+	  	"""Body"":"""_body_""","_
+	  	//"""Body"":"""_"NO BODY HERE"_""","_
+	  	//"""Body"":"""_$System.Encryption.Base64Encode(body)_""","_
+	  	//"""Body"":"""_"funcion test(){ alert();}"_""","_
+	  	//"""Description"":"""_"Description"_""","_
+	  	"""Description"":"""_result.Get("Description")_""","_
+	  	"""Title"":"""_result.Get("Title")_"""},"
+
+ /*
+ 	  	set st=st_"{""SourceTextID"":"_result.Get("ID")_","_
+	  	"""Language"":"""_result.Get("Language")_""","_
+	  	"""Body"":"""_$System.Encryption.Base64Encode(result.Get("Body"))_""","_
+	  	"""Description"":"""_result.Get("Description")_""","_
+	  	"""Title"":"""_result.Get("Title")_"""},"
+
+ */
+	//w !,st
+	}
+	Q "["_$EXTRACT(st,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="Test">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+			set SQL="SELECT "_
+					"ID, Type, "_
+					"Util.Util_GetTechnoDocSourceTextsJSON(ID) As SourceTexts  "_
+				"FROM Scrumbler.TechnoDoc "_
+				"WHERE Task->ID="_ID
+				do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+				q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocSourceTextsJSON1">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+ //	##class(Util.Util).GetTechnoDocSourceTextsJSON(2)
+	s b="test"
+	s c="тест"
+	s c = $ZCONVERT(c,"I","UTF8")
+	w $System.Encryption.Base64Encode(b),!,$System.Encryption.Base64Encode(c),!,$System.Encryption.Base64Decode(c)
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocTargetsJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	#dim st As %String=""
+	set result = ##class(%Library.ResultSet).%New("Scrumbler.TechnoDoc.Target:GetTargetsByTechnoDocID")
+	
+  	do result.%Execute(ID)
+  	
+  	while (result.Next() '=0){
+	  	set st=st_"{""TargetID"":"""_result.Get("ID")_""",""Target"":"""_result.Get("Target")_""",""Type"":"""_result.Get("Type")_"""},"
+	}
+	Q "["_$EXTRACT(st,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocAnnotationsJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	#dim st As %String=""
+	set result = ##class(%Library.ResultSet).%New("Scrumbler.TechnoDoc.Annotation:GetAnnotationsByTechnoDocID")
+  	do result.%Execute(ID)
+  	
+  	while (result.Next() '=0){
+	  	set st=st_"{""AnnotationID"":"""_result.Get("ID")_""",""Body"":"""_$replace($replace($zcvt(result.Get("Body"), "O", "JS"), "\/", "/"), "\'", "'")_""",""Type"":"""_result.Get("Type")_"""},"
+
+	}
+	Q "["_$EXTRACT(st,1,*-1)_"]"
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocsByTaskID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+    
+	#dim jsonstring As %String=""
+	#dim SQL As %String=""
+	
+		set SQL="SELECT "_
+					"ID, Type, "_
+					"Util.Util_GetTechnoDocSourcesJSON(ID) As Sources,  "_
+					"Util.Util_GetTechnoDocSourceTextsJSON(ID) As SourceTexts,  "_
+					"Util.Util_GetTechnoDocTargetsJSON(ID) As Targets,  "_
+					"Util.Util_GetTechnoDocAnnotationsJSON(ID) As Annotations,  "_
+					"Author->FirstName, Author->LastName, Author->Gravatar "_
+				"FROM Scrumbler.TechnoDoc "_
+				"WHERE Task->ID="_ID
+	//W " >>"_SQL_"<< "
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(SQL)
+	set res=sttm.%Execute()
+	
+	while (res.%Next()'=0){
+		set jsonstring=jsonstring_
+		"{""ID"":"			_res.%Get("ID")_			","_
+		"""Annotations"":"  _res.%Get("Annotations")_	","_
+		"""Type"":"""		_res.%Get("Type")_			""","_
+		"""Sources"":"		_res.%Get("Sources")_		","_
+		"""SourceTexts"":"	_res.%Get("SourceTexts")_	","_
+		"""Targets"":"		_res.%Get("Targets")_		","_
+		"""FirstName"":"""	_res.%Get("FirstName")_		""","_
+		"""LastName"":"""	_res.%Get("LastName")_		""","_
+		"""Gravatar"":"""	_res.%Get("Gravatar")_		"""},"
+	}
+	Q "["_$REPLACE($REPLACE($E(jsonstring,1,*-1), $C(10),"\n"),$C(13),"\r")_"]"
+]]></Implementation>
+</Method>
+
+<Method name="ReloadScrumbler">
+<Description>
+Удаление данных !!!</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	w !,"**********************************************************************"
+	w !,"****УДАЛЕНИЕ ВСЕХ ДАННЫХ И ИНИЦИАЦИЯ БАЗЫ ****************************"
+	w !,"**********************************************************************",!
+	// todo: получение вопроса об удалении
+	set st=##class(Scrumbler.Company).%KillExtent()
+	set st=##class(Scrumbler.ScrumblerUser).%KillExtent()
+	set st=##class(Scrumbler.TechnoDoc.Annotation).%KillExtent()
+	set st=##class(Scrumbler.TechnoDoc.Source).%KillExtent()
+	set st=##class(Scrumbler.TechnoDoc.SourceText).%KillExtent()
+	set st=##class(Scrumbler.TechnoDoc.Target).%KillExtent()
+	set st=##class(Scrumbler.Comment).%KillExtent()
+	set st=##class(Scrumbler.Lap).%KillExtent()
+	set st=##class(Scrumbler.ScrumblerEvent).%KillExtent()
+	set st=##class(Scrumbler.ScrumblerUserGroup).%KillExtent()
+	set st=##class(Scrumbler.ScrumblerGroup).%KillExtent()
+	set st=##class(Scrumbler.TechnoDoc).%KillExtent()
+	set st=##class(Scrumbler.Tag).%KillExtent()
+	set st=##class(Scrumbler.Task).%KillExtent()
+	set st=##class(Util.TimeLinks).%KillExtent()
+	
+	w !,"************* создаём пользователя************************************",!
+	
+	set firstUser = ##class(Scrumbler.ScrumblerUser).%New()
+	set firstUser.Email="optimainform@gmail.com"
+	set st= firstUser.SetPassword("P@$$w0rD")
+	set firstUser.FirstName="Тимур"
+	set firstUser.MiddleName="Садыков"
+	set firstUser.LastName="Равилевич"
+	set firstUser.GitHubLogin="Login4All"
+	set firstUser.Gravatar="http://www.gravatar.com/avatar/511c2077bdd305fa429ac379e3634eda?s=200"
+	set firstUser.Weight=10
+	set firstUser.UserType=0
+	set firstUser.isActive=1
+	set st=firstUser.%Save()
+    zw firstUser
+    
+    w !,"************* создаём компанию ***************************************",!
+	
+	set firstCompany = ##class(Scrumbler.Company).%New()
+	set firstCompany.Author=firstUser
+	set firstCompany.CompanyID=46
+	set firstCompany.Name="Аквант"
+	set st=firstCompany.%Save()
+	set firstUser.Company=firstCompany
+	zw firstCompany
+
+    w !,"************* создаём группу *****************************************",!
+    
+    set firstGroup = ##class(Scrumbler.ScrumblerGroup).%New()
+	set firstGroup.Author=firstUser
+	set firstGroup.Company=firstCompany
+	set firstGroup.Name="MDG"
+	set firstGroup.GroupGravatar = "http://groupstudy.in/images/studyGroup8.jpg"
+	//todo: создать image 
+	set firstGroup.Description = "<p>MDG<br/>M Development Group<br/>Группа разработчиков компании Аквант </p>"
+	set firstGroup.ShortDescription = "<p>MDG<br/>M Development Group<br/>"
+	set firstGroup.isOpen = 1
+	set st=firstGroup.%Save()
+	zw firstGroup
+	
+    w !,"************* добавляем пользователя в группу ************************",!
+	
+	set firstUG = ##class(Scrumbler.ScrumblerUserGroup).%New()
+	set firstUG.ScrumblerUser=firstUser
+	set firstUG.ScrumblerGroup = firstGroup
+	set st=firstUG.%Save()
+	zw firstUG
+
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.JSON.TechnoDoc">
+<TimeCreated>63401,60881.567056</TimeCreated>
+
+<Method name="GetTechnoDocByTaskID">
+<Description>
+Возврящает JSON по TaskID</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status
+	if (##class(Scrumbler.Task).%ExistsId(ID))
+	{
+		w !,"{""TechnoDoc"":["
+		set task=##class(Scrumbler.Task).%OpenId(ID)
+		if (task.TechoDocs.Count()>0)
+		{
+			set key=""
+			while task.TechoDocs.GetNext(.key){	
+			set TechoDocs=task.TechoDocs.GetAt(key)
+			  
+			
+			}	
+		}
+		w "]"
+		w !,"}"
+	}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetSourcesByTechnoDocID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set TechnoDoc=##class(Scrumbler.TechnoDoc).%OpenId(ID)
+	set key=""
+	while TechnoDoc.Sources.GetNext(.key){	
+		set Source=TechnoDoc.Sources.GetAt(key)
+			  
+			
+			}
+	Q $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

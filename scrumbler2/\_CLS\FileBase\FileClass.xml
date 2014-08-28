@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="FileBase.FileClass">
+<Super>%Persistent</Super>
+<TimeCreated>63411,17608.514042</TimeCreated>
+
+<Property name="FileType">
+<Type>%String</Type>
+</Property>
+
+<Property name="FileName">
+<Type>%String</Type>
+</Property>
+
+<Property name="DefaultName">
+<Type>%String</Type>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>FileUpload</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="AuthorIndex">
+<Properties>Author</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^FileBase.FileClassD</DataLocation>
+<DefaultData>FileClassDefaultData</DefaultData>
+<IdLocation>^FileBase.FileClassD</IdLocation>
+<IndexLocation>^FileBase.FileClassI</IndexLocation>
+<StreamLocation>^FileBase.FileClassS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="FileClassDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>FileType</Value>
+</Value>
+<Value name="3">
+<Value>FileName</Value>
+</Value>
+<Value name="4">
+<Value>DefaultName</Value>
+</Value>
+<Value name="5">
+<Value>Author</Value>
+</Value>
+<Value name="6">
+<Value>Size</Value>
+</Value>
+<Value name="7">
+<Value>UserAuthor</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

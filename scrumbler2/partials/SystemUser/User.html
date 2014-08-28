@@ -1,0 +1,45 @@
+<div class="well">
+    <div class="row">
+        <div class="col-lg-2">
+            <img style="max-width: 100%" ng-src="{{user.Gravatar}}">
+        </div>
+        <div class="col-lg-10">
+            <div class="row">
+                <div class="col-lg-10">
+                    {{user.FirstName}}
+                    {{user.SecondName}}
+                </div>
+                <div class="col-lg-2">
+
+                </div>
+
+            </div>
+            <br>
+            <div class="row" ng-repeat="stat in StatisticUser">
+            	<div class="col-lg-3">
+            		{{stat.Data}}
+            	</div>
+            	{{stat.count/stat.Maxlen*100}}%
+            	<div class="col-lg-9">
+                    <div class="progress progress-striped active">
+                        <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: {{stat.count/stat.Maxlen*100}}%">
+                            <span class="sr-only"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" ng-repeat="stat in StatisticUser">
+            	<div class="col-lg-3">
+            		{{stat.Data}}
+            	</div>
+            	<div class="col-lg-9">
+            		<div>{{stat.count}}
+            		максимальное количество
+					{{stat.Maxlen}}
+            		</div>
+            	</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Tag">
+<Description>
+Тут будут жить отношения многие ко многим, для хранения тегов
+Они нужны для быстрого поиска информации(Задачи, Сообщения....)</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63359,2487.300295</TimeCreated>
+
+<Property name="Task">
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tags</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="Tag">
+<Type>Scrumbler.Template</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tags</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TagIndex">
+<Properties>Tag</Properties>
+</Index>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tags</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Property name="Comment">
+<Type>Scrumbler.Comment</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tags</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CommentIndex">
+<Properties>Comment</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TagD</DataLocation>
+<DefaultData>TagDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TagD</IdLocation>
+<IndexLocation>^Scrumbler.TagI</IndexLocation>
+<StreamLocation>^Scrumbler.TagS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TagDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Task</Value>
+</Value>
+<Value name="3">
+<Value>Tag</Value>
+</Value>
+<Value name="4">
+<Value>Company</Value>
+</Value>
+<Value name="5">
+<Value>Comment</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="FileBase.Logic.FileClass">
+<TimeCreated>63411,21459.164673</TimeCreated>
+
+<Method name="FileUpload">
+<Description>
+Метод для загрузки файлов</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Author=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set st=$$$OK
+	set Str=""
+ 	set FileName="file0"
+ 	set str=""
+ 	while(FileName'=""){	
+		//************************ Блок операций **************************************
+		//set Location=$GET(^VacancySettings("ImgDirURL"),"")
+		set Location="/InterSystems/Cache/##mdg/MDG_SCRUMBLER_v2/scrumbler2/img/upload/"
+		set Stream =%request.GetMimeData(FileName,1)
+		set fileUpload = ##class(FileBase.FileClass).%New()		
+		set fileUpload.FileType=Stream.ContentType
+		set fileUpload.DefaultName=Stream.FileName
+		set fileUpload.Author=##class(Scrumbler.ScrumblerUser).%OpenId( ##class(WEB.Auth).GetCurrentUser())
+		do fileUpload.%Save()
+		set fileUpload2=##class(FileBase.FileClass).%OpenId(fileUpload.%Id())
+		set ext=$PIECE(Stream.FileName,".",$LISTLENGTH($LISTFROMSTRING(Stream.FileName,"."))) //расширение файла
+		set Name="file_"_fileUpload.%Id()_"."_ext
+		set fileUpload2.FileName=Name
+		do fileUpload2.%Save()
+		set file=##class(%Stream.FileBinary).%New()
+		set file.Filename=Location_Name
+		set st=file.CopyFromAndSave(Stream)
+		set str=str_fileUpload.%Id()_","
+		//do file.OutputToDevice()
+		//************************ Блок операций **************************************
+		// Переходим к следующему файлу
+		set FileName=%request.NextMimeData(FileName)	 		
+	}
+	w $E(str,1,*-1)
+	Quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetListUploadFiles">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set st=##class(Template.JSON).GetJSONData("select TOP 10 id,FileName,DefaultName from FileBase.FileClass order by id DESC")		
+	ret st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

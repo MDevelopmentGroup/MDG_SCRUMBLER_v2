@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="WEB.UserBroker">
+<Super>%CSP.REST</Super>
+<TimeCreated>63361,53520.756464</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+	<!-- Auth -->
+	<Route Url="/Auth/Login/" 		Method="POST" 	Call="WEB.Auth:Login"/>
+	
+	</Routes>
+]]></Data>
+</XData>
+</Class>
+</Export>

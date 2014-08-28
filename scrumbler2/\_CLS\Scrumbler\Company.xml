@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Company">
+<Super>%Persistent</Super>
+<TimeCreated>63357,51229.364771</TimeCreated>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="ScrumblerGroups">
+<Type>Scrumbler.ScrumblerGroup</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Targets">
+<Type>Scrumbler.Target</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Tags">
+<Type>Scrumbler.Tag</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Templates">
+<Description>
+Список шаблонов, целей, тэгов....</Description>
+<Type>Scrumbler.Template</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="ScrumblerUsers">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Image">
+<Type>FileBase.Image</Type>
+<Cardinality>one</Cardinality>
+<Inverse>CompanyImages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ImageIndex">
+<Properties>Image</Properties>
+</Index>
+
+<Property name="Events">
+<Type>Scrumbler.ScrumblerEvent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Company</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Author">
+<Description>
+Кто создал компанию!!! (Он ее админ) 
+Не явная связь!!!</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Property name="isOpen">
+<Description>
+Открытая / закрытая компания</Description>
+<Type>%Boolean</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="CompanyID">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Index name="CompanyIDIndex">
+<Properties>CompanyID</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Property name="Name">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Index name="NameIndex">
+<Properties>Name</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.CompanyD</DataLocation>
+<DefaultData>CompanyDefaultData</DefaultData>
+<IdLocation>^Scrumbler.CompanyD</IdLocation>
+<IndexLocation>^Scrumbler.CompanyI</IndexLocation>
+<StreamLocation>^Scrumbler.CompanyS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="CompanyDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>CreationTime</Value>
+</Value>
+<Value name="3">
+<Value>Name</Value>
+</Value>
+<Value name="4">
+<Value>Image</Value>
+</Value>
+<Value name="5">
+<Value>Author</Value>
+</Value>
+<Value name="6">
+<Value>isOpen</Value>
+</Value>
+<Value name="7">
+<Value>CompanyID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

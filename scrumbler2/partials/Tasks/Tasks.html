@@ -1,0 +1,54 @@
+<div class="">
+
+    <div ng-repeat="task in tasks">
+        <div class="{{task.Weight | TasksWeightTypes}}">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-3">
+                        {{task.ShortDescripion}}
+                    </div>
+
+                    <div class="col-lg-2">
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <img class="img-rounded" style="max-width:25px " ng-src="{{task.InitiatorGravatar}}">
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="row">
+                                    <strong>{{Page.Tasks.Author}}:</strong>
+                                </div>
+                                <div class="row">
+                                    {{task.InitiatorFirstName}}
+                                    {{task.InitiatorSecondName}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <img class="img-rounded" style="max-width:25px " ng-src="{{task.ShooterGravatar}}">
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="row">
+                                    <strong>{{Page.Tasks.Developer}}:</strong>
+                                </div>
+                                <div class="row">
+                                    {{task.ShooterFirstName}}
+                                    {{task.ShooterSecondName}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5"></div>
+                </div>
+            </div>
+            <div class="panel-body">
+                Panel content
+            </div>
+        </div>
+
+    </div>
+
+</div>

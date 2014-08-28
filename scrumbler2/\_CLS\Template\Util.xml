@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Util">
+<TimeCreated>63260,39857.653675</TimeCreated>
+
+<Parameter name="%WorkNameSpace">
+</Parameter>
+
+<Parameter name="%DefaultNameSpace">
+<Default>%SYS</Default>
+</Parameter>
+
+<Method name="%NameSpaceList">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%ArrayOfDataTypes</ReturnType>
+<Implementation><![CDATA[
+	set TempList=##class(%ArrayOfDataTypes).%New()
+	d List^%SYS.NAMESPACE(.nslist,0)
+	Set ns=""
+	Set ns=$O(nslist(ns))
+	set i=0
+	while ns'=""{
+		do TempList.SetAt(ns,i)
+		Set ns=$O(nslist(ns))
+		set i=i+1				
+		}
+	Quit TempList
+]]></Implementation>
+</Method>
+
+<Method name="%SubClassList">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>%WorkNameSpace,%Class:%String="",%SystemClass:%Boolean=0</FormalSpec>
+<ReturnType>%ArrayOfDataTypes</ReturnType>
+<Implementation><![CDATA[
+	//ZN %WorkNameSpace
+	set TempList=##class(%ArrayOfDataTypes).%New()
+	set ClassList=##class(%ResultSet).%New("%ClassDefinition:ClassInfo")
+ 	do ClassList.Execute(%Class)
+ 	set i=0
+ 	   	while ClassList.Next() 
+ 	   {
+	 	   if ('%SystemClass)
+	 	   {
+		 	   if ($F(ClassList.Get("Name"),"%")=0){
+   	 	   		do TempList.SetAt(ClassList.Get("Name"),i)
+ 				set i=i+1
+		 	   }
+		 	}
+		   else
+		   {
+				do TempList.SetAt(ClassList.Get("Name"),i)
+ 				set i=i+1
+			 }
+ 	   }
+	//ZN ..#%DefaultNameSpace
+	Quit TempList
+]]></Implementation>
+</Method>
+
+<Method name="%ListPropertiesOfClass">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>%WorkNameSpace,%Class:%String</FormalSpec>
+<ReturnType>%ArrayOfDataTypes</ReturnType>
+<Implementation><![CDATA[
+	//ZN %WorkNameSpace
+	set TempList=##class(%ArrayOfDataTypes).%New()
+	set Class=##class(%ClassDefinition).%OpenId(%Class)
+	set key=""
+    do Class.Properties.GetNext(.key)
+    while key'="" 
+    	{
+	    	set Property=$LB(Class.Properties.GetAt(key).Name,
+	    			  	     Class.Properties.GetAt(key).Type,
+	    			  		 Class.Properties.GetAt(key).Description,
+	    			  		 Class.Properties.GetAt(key).Collection,
+	    			  		 Class.Properties.GetAt(key).InitialExpression)
+	     
+	     do TempList.SetAt(Property,key)
+
+	     d Class.Properties.GetNext(.key)	
+	     }
+   	//ZN ..#%DefaultNameSpace
+   	//ZW TempList
+	Quit TempList
+]]></Implementation>
+</Method>
+
+<Method name="%OpenFile">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="%WriteFile">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="%CheckDir">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.UtilD</DataLocation>
+<DefaultData>UtilDefaultData</DefaultData>
+<IdLocation>^Template.UtilD</IdLocation>
+<IndexLocation>^Template.UtilI</IndexLocation>
+<StreamLocation>^Template.UtilS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="UtilDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

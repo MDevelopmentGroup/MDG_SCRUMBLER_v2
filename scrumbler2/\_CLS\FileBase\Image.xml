@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="FileBase.Image">
+<Super>%Persistent</Super>
+<TimeCreated>63357,41657.336999</TimeCreated>
+
+<Property name="UserImage">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Image</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Author">
+<Description>
+Автор фото</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Images</Inverse>
+<Relationship>1</Relationship>
+<Required>1</Required>
+</Property>
+
+<Index name="AuthorIndex">
+<Properties>Author</Properties>
+</Index>
+
+<Property name="Name">
+<Description>
+Уникальное имя фото</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="Default">
+<Description>
+Исходное имя фото</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="URL">
+<Description>
+Ссылка на картинку</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="HASH">
+<Description>
+md5</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$ZDATETIME($NOW(),3)</InitialExpression>
+<Required>1</Required>
+</Property>
+
+<Property name="TagImages">
+<Type>Scrumbler.Template</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Image</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="CompanyImages">
+<Type>Scrumbler.Company</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Image</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="GroupImages">
+<Type>Scrumbler.ScrumblerGroup</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Image</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="TaskImages">
+<Type>Scrumbler.Task</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Image</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^FileBase.ImageD</DataLocation>
+<DefaultData>ImageDefaultData</DefaultData>
+<IdLocation>^FileBase.ImageD</IdLocation>
+<IndexLocation>^FileBase.ImageI</IndexLocation>
+<StreamLocation>^FileBase.ImageS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ImageDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>UserImage</Value>
+</Value>
+<Value name="3">
+<Value>Author</Value>
+</Value>
+<Value name="4">
+<Value>Name</Value>
+</Value>
+<Value name="5">
+<Value>CreationTime</Value>
+</Value>
+<Value name="6">
+<Value>Default</Value>
+</Value>
+<Value name="7">
+<Value>URL</Value>
+</Value>
+<Value name="8">
+<Value>HASH</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

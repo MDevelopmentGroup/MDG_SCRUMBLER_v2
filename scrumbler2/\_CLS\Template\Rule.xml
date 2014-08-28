@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Rule">
+<Super>%Persistent</Super>
+<TimeCreated>63277,49395.465182</TimeCreated>
+
+<Property name="Lang">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Template">
+<Type>%ArrayOfDataTypes</Type>
+</Property>
+
+<Property name="Name">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.RuleD</DataLocation>
+<DefaultData>RuleDefaultData</DefaultData>
+<IdLocation>^Template.RuleD</IdLocation>
+<IndexLocation>^Template.RuleI</IndexLocation>
+<StreamLocation>^Template.RuleS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="RuleDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Language</Value>
+</Value>
+<Value name="3">
+<Value>Template</Value>
+</Value>
+<Value name="4">
+<Value>Name</Value>
+</Value>
+<Value name="5">
+<Value>Lang</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

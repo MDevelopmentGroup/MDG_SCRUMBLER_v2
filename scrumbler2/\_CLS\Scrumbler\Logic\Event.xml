@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Event">
+<TimeCreated>63370,13482.615845</TimeCreated>
+
+<Method name="GetEvents">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set company=##class(WEB.Auth).GetCurrentCompany()
+	set SQL="SELECT top 100 "_
+				"ID, EType, "_
+				"Comment->ID AS CommentID, Comment->CommentBody, "_
+				"Company->ID AS CompanyID, Company->Name AS CompanyName, "_
+				"ScrumblerGroup->ID AS GroupID, ScrumblerGroup->Name As GroupName, "_
+				"ScrumblerUser->ID AS UserID, ScrumblerUser->FirstName, ScrumblerUser->LastName, ScrumblerUser->Gravatar AS Gravatar, "_
+				"Task->ID AS TaskID, Task->Name AS TaskName "_
+			"FROM Scrumbler.ScrumblerEvent "_
+			"WHERE Company->ID="_company_" "_
+			"ORDER BY CreationTime DESC"
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL) }
+    catch ex{set st=ex.AsStatus()}
+    
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>task:Scrumbler.Task="",comment:Scrumbler.Comment="",group:Scrumbler.ScrumblerGroup="",Etype:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK	
+	set event=##class(Scrumbler.ScrumblerEvent).%New()
+	set event.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	set event.EType=Etype
+	set event.ScrumblerUser=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set event.Task=task
+	set event.ScrumblerGroup=group
+	set event.Comment=comment
+	set st=event.%Save()
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Create2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>user:Scrumbler.ScrumblerUser,task:Scrumbler.Task="",comment:Scrumbler.Comment="",group:Scrumbler.ScrumblerGroup="",Etype:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK	
+	set event=##class(Scrumbler.ScrumblerEvent).%New()
+	set event.Company=user.Company
+	set event.EType=Etype
+	set event.ScrumblerUser=user
+	set event.Task=task
+	set event.ScrumblerGroup=group
+	set event.Comment=comment
+	set st=event.%Save()
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

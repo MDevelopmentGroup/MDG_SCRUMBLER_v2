@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Kernel">
+<Abstract>1</Abstract>
+<TimeCreated>63277,66144.150108</TimeCreated>
+
+<Method name="N7">
+<ClassMethod>1</ClassMethod>
+<CodeMode>objectgenerator</CodeMode>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set str=" w ""sdfv"",!    "_
+			" set b=2+2     "_
+			" w b,! "
+	
+	//set %code.CodeMode="objectgenerator"
+	
+	do %code.Write(" do ##class(Template.Kernel).N6() ")
+	
+	//  Cache CRUD
+	
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="N6">
+<ClassMethod>1</ClassMethod>
+<CodeMode>objectgenerator</CodeMode>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set str=" w ""sdfv"",!    "_
+			" set b=2+2     "_
+			" w b,! "
+	
+
+	
+	do %code.Write(str)
+	
+	//  Cache CRUD
+	//
+	
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

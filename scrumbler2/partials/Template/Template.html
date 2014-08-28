@@ -1,0 +1,36 @@
+<div class="row">
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-lg-2">Область</label>
+            <div class="col-lg-5">
+
+
+                <div class="input-group">
+                    <select class="form-control" ng-model="SelectItemNameSpace">
+                        <option value="">--</option>
+                        <option ng-repeat="item in NameSpaceList" value="{{item.Name}}">{{item.Name}}</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="GetClassList(SelectItemNameSpace)">OK</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div ng-repeat="class in ClassList">
+
+                <div class="form-group">
+                    <div class="col-lg-1">
+                        <!--<input type="radio" class="form-control" id="{{class.Name}}" value="{{class.Name}}" name="Package" ng-model="Package">-->
+                        <button class="btn btn-default btn-sm" ng-click="Create(SelectItemNameSpace,class.Name)">Создать</button>
+                    </div>
+                    <label class="col-lg-4" >{{class.Name}}</label>
+                </div>
+
+
+            </div>
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,45 @@
+<div class="aside" tabindex="-1" role="dialog">
+  <div class="aside-dialog">
+    <div class="aside-content">
+      <div class="aside-header" >
+        <button type="button" class="close" ng-click="$hide()">&times;</button>
+        <h4 class="aside-title">
+            Задачи
+        </h4>
+      </div>
+      <div class="aside-body" >
+        <div  ng-repeat="item in Slaves">
+
+            <div class="{{item.Weight | TasksWeightTypes}}">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-3">
+
+
+                            {{item.FirstName}}
+                            {{item.SecondName}}
+
+                        </div>
+                        <div class="col-lg-6">
+                            {{item.ShortDescripion}}
+                        </div>
+                        <div class="col-lg-3">
+                            <button class="btn btn-default btn-sm"><span class="glyphicon glyphicon-ok"></span></button>
+                            <button class="btn btn-default btn-sm"><span class="glyphicon glyphicon-eye-open"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+      </div>
+      <div class="aside-footer">
+        <button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>

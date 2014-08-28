@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Group">
+<TimeCreated>63363,82409.682982</TimeCreated>
+
+<Method name="Create">
+<Description>
+Создаем группу</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set group=##class(Scrumbler.ScrumblerGroup).%New()
+	set user=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set group.Name=$ZCONVERT(obj.Name,"I","UTF8")
+	
+	set group.Author=user
+	set group.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	
+	set group.Description=$ZCONVERT(obj.Description,"I","UTF8")
+	if (obj.ShortDescription'=""){set group.ShortDescription=$ZCONVERT(obj.ShortDescription,"I","UTF8")}
+	
+	set group.GroupGravatar=$ZCONVERT(obj.GroupGravatar,"I","UTF8")
+	set group.isOpen=obj.isOpen
+	$$$THROWONERROR(st,group.%Save())
+	///Добавление админа в свою группу
+	set st=..AddUser(group,user)
+	
+	/// Событие - создание группы
+	set st=##class(Scrumbler.Logic.Event).Create(,,group,7)
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<Description>
+Обновляем группу</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set group=##class(Scrumbler.ScrumblerGroup).%OpenId(obj.ID)
+	set group.Name=$ZCONVERT(obj.Name,"I","UTF8")
+	//set group.Author=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	//set group.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	set group.GroupGravatar=$ZCONVERT(obj.GroupGravatar,"I","UTF8")
+	set group.Description=$ZCONVERT(obj.Description,"I","UTF8")
+	if (obj.ShortDescription'=""){set group.ShortDescription=$ZCONVERT(obj.ShortDescription,"I","UTF8")}
+	set group.isOpen=obj.isOpen
+	$$$THROWONERROR(st,group.%Save())
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<Description>
+Удаляем группу</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+</Method>
+
+<Method name="GetAllGroups">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+
+	set UserID=##class(WEB.Auth).GetCurrentUser()		
+	set SQL ="select ID, Company->Name As CompanyName, GroupGravatar, ShortDescription, "_
+			 "Name, Author->FirstName, Author->LastName, Author->Gravatar, Author->ID AS UserID, "_
+			 " Util.Util_GetTagsForGroup( ID ) As Tags, Util.Util_EditRule( "_UserID_", Author->ID ) As Edit "_
+			"from Scrumbler.ScrumblerGroup where isOpen=1"_
+			"Order by CreationTime"
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetAdminGroups">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set UserID=##class(WEB.Auth).GetCurrentUser()
+	set SQL ="select 	ID, Description, isOpen, Company->Name As CompanyName, GroupGravatar, ShortDescription, "_
+				"Name, Author->FirstName, Author->LastName, Author->Gravatar, Author->ID AS UserID,  "_
+				"Util.Util_GetTagsForGroup( ID ) As Tags, Util.Util_EditRule( "_UserID_", Author->ID ) As Edit "_
+			 "from Scrumbler.ScrumblerGroup where Author="_UserID
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetMyGroups">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set UserID=##class(WEB.Auth).GetCurrentUser()
+
+	set SQL="select ID, Description, isOpen, Company->Name As CompanyName, GroupGravatar, ShortDescription, "_
+			"Name, Author->FirstName, Author->LastName, Author->Gravatar, Author->ID AS UserID, "_
+			"Util.Util_GetTagsForGroup( ID ) As Tags, Util.Util_EditRule( "_UserID_", Author->ID ) As Edit "_
+			"from Scrumbler.ScrumblerGroup where ID IN (select ScrumblerGroup->ID from Scrumbler.ScrumblerUserGroup where ScrumblerUser->ID="_UserID_")"
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetGroupByID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if (##class(Scrumbler.ScrumblerGroup).%ExistsId(ID))
+	{
+		set group=##class(Scrumbler.ScrumblerGroup).%OpenId(ID)
+		if (group.isOpen||##class(Scrumbler.Logic.ScrumblerUser).IsTheUserGroup(,ID)) // TODO добавиь вставку для мегаадмина
+		{
+		set SQL="select ID, Description, isOpen, Company->Name As CompanyName, GroupGravatar, ShortDescription, "_
+				"Name, Author->FirstName, Author->LastName, Author->Gravatar "_
+				"from Scrumbler.ScrumblerGroup where ID="_ID
+    	try{
+	    	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    	}catch ex{set st=ex.AsStatus()}	
+		}
+	}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetGroupsByCompany">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK	
+    try{		
+	set company=##class(WEB.Auth).GetCurrentCompany()
+	if (##class(Scrumbler.Company).%ExistsId(company)){
+	#dim SQL As %String="SELECT ID, Name FROM Scrumbler.ScrumblerGroup WHERE Company->ID="_company
+	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	}
+	}catch ex{set st=ex.AsStatus()}	
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AddUserToGroup">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set User=""
+	set Group=obj.Group
+	if (obj.User'=""){set User=obj.User}
+	
+	&sql(select count(*) into:count from Scrumbler.ScrumblerUserGroup where ScrumblerGroup=:Group and ScrumblerUser=:User )
+	if (count<1&&User'=""){
+		set user=##class(Scrumbler.ScrumblerUser).%OpenId(User)
+	set SGoup=##class(Scrumbler.ScrumblerGroup).%OpenId(Group)
+	set group=##class(Scrumbler.ScrumblerUserGroup).%New()
+	set group.ScrumblerGroup=SGoup
+	set group.ScrumblerUser=user
+	// новый участник группы
+	set st=##class(Scrumbler.Logic.Event).Create2(user,,,SGoup,8)
+	$$$THROWONERROR(st,group.%Save())
+	}
+
+	
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="RemoveUserFromGroup">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	if (##class(Scrumbler.ScrumblerUserGroup).%ExistsId(ID)){
+		set st=##class(Scrumbler.ScrumblerUserGroup).%DeleteId(ID)
+		}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetGroupByTask">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		set st=$$$OK	
+    try{		
+
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	#dim SQL As %String="SELECT ID, Name FROM Scrumbler.ScrumblerGroup WHERE ID="_task.ScrumblerGroup.%Id()
+	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	}
+	}catch ex{set st=ex.AsStatus()}	
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AddUser">
+<Description>
+Добавить пользователя в группу</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>group:Scrumbler.ScrumblerGroup,user:Scrumbler.ScrumblerUser</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st as %Status=$$$OK
+	set UserInGroup=##class(Scrumbler.ScrumblerUserGroup).%New()
+	set UserInGroup.ScrumblerGroup=group
+	set UserInGroup.ScrumblerUser=user
+	set st=UserInGroup.%Save()
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="UserInvite">
+<Description>
+Приглашение пользователя в группу</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK	
+    try{		
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		&sql(select id into :idUser from Scrumbler.ScrumblerUser where Email=:obj.Email)
+		if (idUser)
+		{
+			set idRel=##class(Scrumbler.Logic.Group).AddUserToScrumblerUserGroup(idUser,obj.Group)
+			set st=##class(Util.Mail.SendMail).NewMail(idUser,obj.Email,"UserInviteToGroup",obj.Group)
+		}
+		else{
+			set st=##class(Util.Mail.SendMail).NewMail(obj.Group,obj.Email,"EmailConfirm")
+		}
+		
+	}catch ex{set st=ex.AsStatus()}	
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AddUserToScrumblerUserGroup">
+<Description>
+Добавить добавить пользователя в группу. Возвращает Id записи в Scrumbler.ScrumblerUserGroup</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>idUser,IdGroup</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set newSUG=##class(Scrumbler.ScrumblerUserGroup).%New()
+	set newSUG.ScrumblerGroup=##class(Scrumbler.ScrumblerGroup).%OpenId(IdGroup)
+	set newSUG.ScrumblerUser=##class(Scrumbler.ScrumblerUser).%OpenId(idUser)
+	do newSUG.%Save()
+	set st=newSUG.%Id()
+	ret st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

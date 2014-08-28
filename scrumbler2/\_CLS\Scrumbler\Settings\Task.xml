@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Settings.Task">
+<Super>%SerialObject</Super>
+<TimeCreated>63357,56571.704328</TimeCreated>
+
+<Property name="CalculatedMissingTask">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="CalculatedResStat">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="CalculatedTargets">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheSerialState</Type>
+<State>TaskState</State>
+<StreamLocation>^Scrumbler.Settings.TaskS</StreamLocation>
+<Data name="TaskState">
+<Value name="1">
+<Value>CalculatedMissingTask</Value>
+</Value>
+<Value name="2">
+<Value>CalculatedResStat</Value>
+</Value>
+<Value name="3">
+<Value>CalculatedTargets</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

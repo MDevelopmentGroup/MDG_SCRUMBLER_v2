@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Skils">
+<Description>
+Попутал немного, Skils это все таки список умений</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63357,39987.798799</TimeCreated>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.SkilsD</DataLocation>
+<DefaultData>SkilsDefaultData</DefaultData>
+<IdLocation>^Scrumbler.SkilsD</IdLocation>
+<IndexLocation>^Scrumbler.SkilsI</IndexLocation>
+<StreamLocation>^Scrumbler.SkilsS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SkilsDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Task</Value>
+</Value>
+<Value name="3">
+<Value>Tag</Value>
+</Value>
+<Value name="4">
+<Value>Company</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

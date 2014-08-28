@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="WEB.Broker">
+<Super>%CSP.REST</Super>
+<TimeCreated>63358,37246.152582</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+	<!-- Targets -->
+	<Route Url="/Target/Get/:ID" 		Method="GET" 	Call="Scrumbler.Logic.Target:Get"/>
+	<Route Url="/Target/GetAll" 		Method="GET" 	Call="Scrumbler.Logic.Target:Get"/>
+	<Route Url="/Target/Create" 		Method="POST" 	Call="Scrumbler.Logic.Target:Create"/>
+	<Route Url="/Target/Update" 		Method="POST" 	Call="Scrumbler.Logic.Target:Update"/>
+	<Route Url="/Target/Delete/:ID" 	Method="GET" 	Call="Scrumbler.Logic.Target:Delete"/>
+	
+	
+	
+	<Route Url="/Target/Delete/:login/:password" 	Method="GET" 	Call="WEB.Auth:Login"/>
+	
+	<!-- Tasks -->
+	
+	<Route Url="/Task/Get/:ID/:All" 			Method="GET" 	Call="Scrumbler.Logic.Task:Get"/>
+	<Route Url="/Task/GetTaskByID/:ID" 	Method="GET" 	Call="Scrumbler.Logic.Task:GetTaskByID"/>
+	<Route Url="/Task/Get/:All" 				Method="GET" 	Call="Scrumbler.Logic.Task:Get0"/>
+	<Route Url="/Task/Create" 			Method="POST" 	Call="Scrumbler.Logic.Task:Create"/>
+	<Route Url="/Task/Update" 			Method="POST" 	Call="Scrumbler.Logic.Task:Update"/>
+	<Route Url="/Task/Delete/:ID"		Method="DELETE" Call="Scrumbler.Logic.Task:Delete"/>
+	<Route Url="/Task/GetBreadcrumb/:ID" Method="GET" 	Call="Scrumbler.Logic.Task:GetBreadcrumb"/>
+	<Route Url="/Task/ViewTask/:ID" 	Method="GET" 	Call="Scrumbler.Logic.Task:ViewTask"/>
+	<Route Url="/Task/Recovery/:ID" 	Method="GET" 	Call="Scrumbler.Logic.Task:Recovery"/>
+	<Route Url="/Task/TD/:ID" 	Method="GET" 	Call="Util.Util:Test"/>
+	
+	<!-- Comments -->
+	<Route Url="/Comment/GetCommentByTask/:ID" 		Method="GET" 	Call="Scrumbler.Logic.TechnoDoc:GetTechnoDocsByTaskID"/>
+	<Route Url="/Comment/GetComments" 				Method="GET" 	Call="Scrumbler.Logic.Comment:GetComments"/>
+	<Route Url="/Comment/GetCommentByID/:ID"		Method="GET" 	Call="Scrumbler.Logic.Comment:GetCommentByID"/>
+	<Route Url="/Comment/CreateCommentForTask"		Method="POST" 	Call="Scrumbler.Logic.Comment:CreateCommentForTask"/>
+	<Route Url="/Comment/Update"					Method="POST" 	Call="Scrumbler.Logic.Comment:Update"/>
+	<Route Url="/Comment/GetLastComment"			Method="POST"	Call="Scrumbler.Logic.Comment:GetLastComment"/>
+	
+	<!-- Auth -->
+	<Route Url="/Auth/Login/" 		Method="POST" 	Call="WEB.Auth:Login"/>
+	
+	
+	<!-- User -->
+	<Route Url="/SystemUser/LoginIsValid" 			Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:LoginIsValid"/>
+	<Route Url="/SystemUser/Create" 				Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:Create"/>
+	<Route Url="/SystemUser/Update" 				Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:Update"/>
+	<Route Url="/SystemUser/UpdateGitHubLogin" 		Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:UpdateGitHubLogin"/>
+	
+	
+	
+	
+	<Route Url="/SystemUser/AutoGitHubLogin" 		Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:AutoGitHubLogin"/>
+	<Route Url="/SystemUser/Delete/:ID" 			Method="DELETE"	Call="Scrumbler.Logic.ScrumblerUser:Delete"/>
+	<Route Url="/SystemUser/GetUserByID/:ID" 		Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUserByID"/>
+	<Route Url="/SystemUser/GetUsersByCompany/:ID" 	Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUsersByCompany"/>
+	<Route Url="/SystemUser/GetUsersByGroup/:ID" 	Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUsersByGroup"/>
+	<Route Url="/SystemUser/GetUsers" 				Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUsers"/>
+	<Route Url="/SystemUser/SearchUser"			 	Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:SearchUser"/>
+	
+	<Route Url="/SystemUser/Registration" 			Method="POST" 	Call="Scrumbler.Logic.ScrumblerUser:Registration"/>
+	<Route Url="/SystemUser/CheckUID/:UID" 			Method="GET" 	Call="Util.TimeLinks:CheckLinkJSON"/>
+	
+	
+	<Route Url="/SystemUser/GetUsersInGroupByTask/:ID"	Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUsersInGroupByTask"/>
+	<Route Url="/SystemUser/GetUsersByCompanyOrAllNotIsGroup/:Company/:ID" 	Method="GET" 	Call="Scrumbler.Logic.ScrumblerUser:GetUsersByCompanyOrAllNotIsGroup"/>
+	
+	<!-- Sprint -->
+	<Route Url="/Sprint/GetSprints" 				Method="GET" 	Call="Scrumbler.Logic.Sprint:GetSprints"/>
+	<Route Url="/Sprint/GetSprintsByTask/:ID" 		Method="GET" 	Call="Scrumbler.Logic.Sprint:GetSprintsByTask"/>
+	<Route Url="/Sprint/SetShooterForTask" 			Method="POST" 	Call="Scrumbler.Logic.Sprint:SetShooterForTask"/>
+	<Route Url="/Sprint/TasksInTheWork" 			Method="GET" 	Call="Scrumbler.Logic.Sprint:TasksInTheWork"/>
+	
+	
+	<!-- Group -->
+	<Route Url="/Group/Create" 					Method="POST" 	Call="Scrumbler.Logic.Group:Create"/>
+	<Route Url="/Group/Update" 					Method="POST" 	Call="Scrumbler.Logic.Group:Update"/>
+	<Route Url="/Group/Delete/:ID" 				Method="DELETE"	Call="Scrumbler.Logic.Group:Delete"/>
+	<Route Url="/Group/GetAllGroups" 				Method="GET"	Call="Scrumbler.Logic.Group:GetAllGroups"/>
+	<Route Url="/Group/GetMyGroups" 				Method="GET"	Call="Scrumbler.Logic.Group:GetMyGroups"/>
+	<Route Url="/Group/GetAdminGroups" 				Method="GET"	Call="Scrumbler.Logic.Group:GetAdminGroups"/>
+	<Route Url="/Group/GetGroupByID/:ID" 		Method="GET"	Call="Scrumbler.Logic.Group:GetGroupByID"/>
+	<Route Url="/Group/GetGroupsByCompany"	 	Method="GET"	Call="Scrumbler.Logic.Group:GetGroupsByCompany"/>
+	<Route Url="/Group/AddUserToGroup" 			Method="POST"	Call="Scrumbler.Logic.Group:AddUserToGroup"/>
+	<Route Url="/Group/RemoveUserFromGroup"		Method="POST"	Call="Scrumbler.Logic.Group:RemoveUserFromGroup"/>
+	<Route Url="/Group/GetGroupByTask/:ID" 		Method="GET"	Call="Scrumbler.Logic.Group:GetGroupByTask"/>
+	<Route Url="/Group/UserInvite"				Method="POST"	Call="Scrumbler.Logic.Group:UserInvite"/>
+	<Route Url="/Group/RemoveUserFromGroup/:ID" Method="DELETE"	Call="Scrumbler.Logic.Group:RemoveUserFromGroup"/>
+	
+	<!-- Tree -->
+	<Route Url="/Tree/GetTrees" 		Method="GET"	Call="Scrumbler.Logic.Tree:GetTrees"/>
+	<Route Url="/Tree/GetTreeByID/:ID" 	Method="GET"	Call="Scrumbler.Logic.Tree:GetTreeByID"/>
+	<Route Url="/Tree/SetTree/:ID/:To" 		Method="POST"	Call="Scrumbler.Logic.Tree:SetTree"/>
+	
+	<!-- Events -->
+	<Route Url="/Event/GetEvents" 		Method="GET"	Call="Scrumbler.Logic.Event:GetEvents"/>
+
+	<!-- Company -->
+	<Route Url="/Company/GetAll" 		Method="GET"	Call="Scrumbler.Logic.Company:GetAll"/>
+	<Route Url="/Company/Get/:ID" 		Method="GET"	Call="Scrumbler.Logic.Company:Get"/>
+	<Route Url="/Company/Create" 		Method="POST"	Call="Scrumbler.Logic.Company:CreateCompanyAndAdminUser"/>
+	<Route Url="/Company/Update" 		Method="POST"	Call="Scrumbler.Logic.Company:Update"/>
+	
+	<!-- Room -->
+	<Route Url="/Room/GetActiveTasks" 			Method="GET"	Call="Scrumbler.Logic.Room:GetActiveTasks"/>
+	<Route Url="/Room/GetTasksInTheWork" 		Method="GET"	Call="Scrumbler.Logic.Room:GetTasksInTheWork"/>
+	<Route Url="/Room/GetAFailedTasks" 			Method="GET"	Call="Scrumbler.Logic.Room:GetAFailedTasks"/>
+	<Route Url="/Room/GetCompletedTasks" 		Method="GET"	Call="Scrumbler.Logic.Room:GetCompletedTasks"/>
+	<Route Url="/Room/CancelTask/:ID" 			Method="POST"	Call="Scrumbler.Logic.Room:CancelTask"/>
+	<Route Url="/Room/StartTask/:ID" 			Method="POST"	Call="Scrumbler.Logic.Room:StartTask"/>
+	<Route Url="/Room/EndTask" 					Method="POST"	Call="Scrumbler.Logic.Room:EndTask"/>
+	
+	<!-- Search -->
+	<Route Url="/Search/SearchText/:text" 		Method="GET"	Call="Scrumbler.Logic.Search:SearchText"/>
+	
+	<!-- Tags -->
+	<Route Url="/Tags/GetTags/:text" 		Method="GET"	Call="Scrumbler.Logic.Tags:GetTags"/>
+	<Route Url="/Tags/GetTags/" 			Method="GET"	Call="Scrumbler.Logic.Tags:GetTags"/>
+	<Route Url="/Tags/Create" 				Method="POST"	Call="Scrumbler.Logic.Tags:Create"/>
+	<Route Url="/Tags/DeleteTagFromTask"	Method="POST"	Call="Scrumbler.Logic.Tags:DeleteTagFromTask"/>
+	<Route Url="/Tags/DeleteTag"			Method="POST"	Call="Scrumbler.Logic.Tags:DeleteTag"/>
+
+	<Route Url="/Image/:ID" 				Method="GET"	Call="FileBase.Logic.Image:UploadImage"/>
+		<!-- Statistic-->
+		<Route Url="/Tags/GetUserStatistic/:UserId" Method="GET" 	Call="Scrumbler.Logic.Tags:GetUserStatistic"/>
+		<Route Url="/Tags/GetStatistic/" Method="GET" 	Call="Scrumbler.Logic.Tags:GetStatistic"/>
+	
+	
+	<!--  -->
+	<Route Url="/Template/GetNameSpaceList" 			Method="GET" 	Call="Template.JSON:GetNameSpaceList"/>
+	<Route Url="/Template/GetClassList/:NameSpace"		Method="GET" 	Call="Template.JSON:GetPackageList"/>
+	
+	<Route Url="/Template/Create/:NameSpace/:package"		Method="GET" 	Call="Template.JSON:Create"/>
+	
+	<!--Tips -->
+	<Route Url="/Tips/Create" 		Method="POST"	Call="Scrumbler.Tips:CreateTip"/>
+	<Route Url="/Tips/GetAll" 		Method="GET"	Call="Scrumbler.Tips:GetAll"/>
+	<Route Url="/Tips/Delete/:ID" 	Method="DELETE"	Call="Scrumbler.Tips:Delete"/>
+	<Route Url="/Tips/Update" 		Method="POST"	Call="Scrumbler.Tips:Update"/>
+	<Route Url="/Tips/GetRnd" 		Method="GET"	Call="Scrumbler.Tips:GetRnd"/>
+	<!-- TestJSON-->
+	<Route Url="/JSON/Test" 		Method="POST"	Call="Scrumbler.Logic.TestJSON:S1"/>
+	
+	
+	<!--GitHub-->
+	<Route Url="/GitHub/CreateIssue" Method="POST" 	Call="Scrumbler.Logic.GitHub:CreateIssue"/>
+	<Route Url="/GitHub/GetGitHubRepo" Method="GET" 	Call="Scrumbler.Logic.GitHub:GetGitHubRepo"/>
+	
+	<Route Url="/V" Method="GET" 	Call="Scrumbler.Users.Roles:M1"/>
+	
+	<!--Chat-->	
+	<Route Url="/Chat/SendMessage/"    	Method="PUT" 	Call="WEB.ChatServer:SendMessage"/>
+	<Route Url="/Chat/GetMessage/"    	Method="GET" 	Call="WEB.ChatServer:GetMessage"/>	   
+	 <!-- /Chat-->
+	 
+	<!--FileUplad-->
+	<Route Url="/Upload/FileUpload/"		Method="POST"	Call="FileBase.Logic.FileClass:FileUpload"/>
+	<Route Url="/Upload/GetListFileUpload/"	Method="GET" 	Call="FileBase.Logic.FileClass:GetListUploadFiles"/>
+	<!--/FileUpload-->
+	
+	
+</Routes>
+]]></Data>
+</XData>
+
+<Method name="Http404">
+<Description>
+Issue an '404' error ( user can override)</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	w " Все грустно!!!!",!
+	w "Скомпилируй Broker или создай этот Route!!!!!!!!!!!!!",!
+    Set %response.Status="404 Not Found"
+    Quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Tree">
+<TimeCreated>63368,39859.846424</TimeCreated>
+
+<Method name="GetTrees">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set company=##class(WEB.Auth).GetCurrentCompany()
+	set SQL="select "_
+				"ID, SSN, ScrumblerGroup, TaskWeight, Name, MasterTask, UserShooter->FirstName,  "_
+				"UserShooter->LastName, isHited "_
+			"from Scrumbler.Task "_
+			"where isDelete=0 and Company->ID="_company_" "_
+			"order by CreationTime"
+	
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetTreeByID">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set company=##class(WEB.Auth).GetCurrentCompany()
+	#dim SSN As %String=""
+	if (task.SSN'=""){set SSN=task.SSN_"|"_ID}
+	else{set SSN=ID}
+
+	set SQL ="select "_
+				"ID, SSN, TaskWeight, Name, MasterTask, UserShooter->FirstName,  "_
+				"UserShooter->LastName, isHited "_
+			"from Scrumbler.Task "_
+			"where "_
+				"Company->ID="_company_" and "_
+				"SSN like '"_SSN_"%' or ID="_ID_" "_
+			"order by CreationTime"
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="SetTree">
+<Description>
+Сделать проектом / Перенос ветки</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID,To:%Integer</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		set task=##class(Scrumbler.Task).%OpenId(ID)
+		if (To=0){set task.MasterTask=""}
+		else {
+			if (##class(Scrumbler.Task).%ExistsId(To)){
+				set task.MasterTask=##class(Scrumbler.Task).%OpenId(To)
+			}
+			else
+			{// Ошибка
+			}
+		}
+		set st=task.%Save()
+	}
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

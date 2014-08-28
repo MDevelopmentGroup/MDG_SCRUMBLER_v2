@@ -1,0 +1,192 @@
+<div class="">
+<div class="row">
+    <div class="col-lg-2">
+        <p>
+            <input type="text" ng-model="SearchTask" class="form-control" placeholder="{{Page.Task.Search}}">
+        </p>
+    </div>
+    <div class="col-lg-3">
+    	<div class="row">
+	    	<div class="col-lg-6">
+	        	<a class="btn btn-default" href="#/CreateTask">{{Page.Task.Create}} <label class="label label-success"><span class="glyphicon glyphicon-plus"></span></label></a>
+	        </div>
+	        <div class="col-lg-6">
+	        	<a class="btn btn-default" ng-show="MasterTask" href="#/CreateTask/{{MasterTask}}">{{Page.Task.CreateMasterTask}} <label class="label label-success"><span class="glyphicon glyphicon-plus"></span></label></a>
+	        </div>
+        </div>
+    </div>
+    <div class="col-lg-2">    
+        <select class="form-control ng-pristine ng-valid" ng-model="FilterGroup" ng-change="ChangeFilter()">
+        	<option value="">-----------</option>
+        	<option value="{{Group.ID}}" ng-repeat="Group in GroupList">{{Group.Name}}</option>
+        </select>
+    </div>
+    <div class="col-lg-2">
+        <div class="input-group">
+            <input type="text" class="form-control" value="{{Page.Task.IsDelete}}" disabled>
+            <span class="input-group-addon">
+                <input type="checkbox"  ng-true-value="1" ng-false-value="0" ng-model="IsDeleted"  ng-change="GetTasks()" >
+            </span>
+
+        </div>
+
+    </div>
+    <div class="col-lg-3" ng-init="reverse=0">
+        <button class="btn btn-default pull-right" ng-click="reverse=!reverse">
+            {{Page.Task.Sorting}}
+            <label class="label label-info">
+                <span class="{{reverse | TargetSorting }}"></span>
+            </label>
+        </button>
+    </div>
+</div>
+    <ol class="breadcrumb" ng-show="Breadcrumb">
+        <li><a href="#/Tasks">Home</a></li>
+        <li ng-repeat="item in breadcrumbs">
+            <a href="#/Tasks/{{item.ID}}">[#{{item.ID}}].{{item.Name}}</a>
+        </li>
+       	<li>
+            <a href="#/Task/{{CurTaskId}}"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span></a>
+        </li>
+    </ol>
+
+    <div ng-repeat="task in ViewTasks | filter:{Name:SearchTask} | orderBy:'Name':reverse " class="{{task.isHited | ViewPanelType:task.IsDelete}}" ng-init="ViewTask=0; ViewListNIT=0" >
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-1" >
+
+                    <button class="btn btn-default btn-sm" ng-click="ViewTask=!ViewTask; GetCommentByTask(task.ID,ViewTask)">
+                        <span class="{{ViewTask | ViewTargetList}}"></span>
+                    </button>
+                </div>
+                <div class="col-lg-5">
+                    <a href="#/Tasks/{{task.ID}}" ng-if="!task.LastElement">
+                        [#{{task.ID}}].{{task.Name}}
+                    </a>
+                    <a href="#/Task/{{task.ID}}" ng-if="task.LastElement">
+                        [#{{task.ID}}].{{task.Name}}
+                    </a>
+                </div>
+                <div class="col-lg-3">
+                    <div class="row">
+                        <div ng-repeat="tag in task.Tags" >
+                            <div class="col-lg-3"><label class="label label-info"> {{tag.text}}</label></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <a class="btn btn-default btn-sm" href="#/CreateTask/{{task.ID}}" data-trigger="hover" data-type="success" data-title="{{Page.Task.Decompose}}" bs-tooltip>
+                        <span class="glyphicon glyphicon-th"></span>
+                    </a>
+                    <a class="btn btn-default btn-sm" href="#/UpdateTask/{{task.ID}}" data-trigger="hover" data-type="success" data-title="{{Page.Task.Refresh}}" bs-tooltip>
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </a>
+                    <button class="btn btn-default btn-sm dropdown-toggle"  data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-comment"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a ng-click="ViewTask=1;GetCommentByTast(task.ID,ViewTask);CreateCommentForTask(task.ID)">{{Page.Task.CreateComment}}</a></li>
+                        <li><a href="#/Messages/0">{{Page.Task.AllComments}}</a></li>
+                    </ul>
+                    <a class="btn btn-default btn-sm" href="#/Sprints/{{task.ID}}"  data-trigger="hover" data-type="success" data-title="{{Page.Task.TasksInTheWork}}" bs-tooltip>
+                        <span class="glyphicon glyphicon-hand-down"></span>
+                    </a>
+                    <a class="btn btn-default btn-sm" href="#/Tree/{{task.ID}}" data-trigger="hover" data-type="success" data-title="{{Page.Task.Tree}}" bs-tooltip>
+                        <span class="glyphicon glyphicon-tree-conifer"></span>
+                    </a>
+                    <button ng-if="!task.IsDelete" class="btn btn-default btn-sm" data-trigger="hover" data-type="success" data-title="{{Page.Task.Delete}}" bs-tooltip ng-click="DeleteTask(task)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+
+                    <button ng-if="task.IsDelete" class="btn btn-default btn-sm" data-trigger="hover" data-type="success" data-title="{{Page.Task.Recovery}}" bs-tooltip ng-click="RecoveryTask(task)">
+                        <span class="fa fa-recycle"></span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="row">
+
+
+                <div style="display:inline;margin-left:15px;margin-right:15px;margin-top:10px;padding-left:15px;padding-right:15px;" ng-if="task.IsNotHitTargets">
+                    {{" Есть молоко:" }}{{task.IsNotHitTargets}}
+                    <button class="btn btn-sm btn-danger" ng-click="ViewListNIT=!ViewListNIT; GetListINHTarget(task.ID,ViewListNIT);">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-danger" title="Невыполненные задачи" data-content="ListINHtarge" data-template="partials/modal/popover.tpl.html" data-animation="am-flip-x" bs-popover ng-click="ViewListNIT=!ViewListNIT; GetListINHTarget(target.ID,ViewListNIT); func($event)">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    </button>
+
+                    <div class="row" ng-show="ViewListNIT" style="padding-left:15px">
+                        <div class="col-md-12" ng-repeat="val in ListINHtarget[task.ID]">
+
+                            <a href={{UrlBase}}index.html#/Targets/{{val.ID}}>{{val.ShortDesc}}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class=""></div>
+            </div>
+            <div class="row">
+                <br>
+            </div>
+            <div class="row" >
+                <div class="col-lg-8" ng-if="task.TotalTasks">
+                    <div class="progress" >
+                        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{Round(task.TotalIsHitTasks/task.TotalTasks*100)}}%">
+                            {{Round(task.TotalIsHitTasks/task.TotalTasks*100)}}%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1" ng-if="task.TotalTime">
+
+                    <div ng-switch="GetLastChar(Round(task.TotalTime)/9)"> ~ {{task.TotalTime}}
+                        <span ng-switch-when="1">день</span>
+                        <span ng-switch-when="2">дня</span>
+                        <span ng-switch-when="3">дня</span>
+                        <span ng-switch-when="4">дня</span>
+                        <span ng-switch-default>дней</span>
+                    </div>
+                </div>
+                <div class="col-lg-3" ng-if="task.EstimatedCostProj">
+                    Оценочная цена проекта {{task.EstimatedCostProj}}
+                </div>
+            </div>
+        </div>
+        <div class="panel-body" ng-show="ViewTask" >
+            <div class="" ng-repeat="comment in comments[task.ID]">
+                <div class="row">
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <img style="max-height: 50px" class="img-thumbnail" ng-src="{{comment.Gravatar}}">
+                            </div>
+                            <div class="col-lg-6">
+                            {{$index}}
+                                {{comment.FirstName}}
+                                {{comment.SecondName}}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="row">
+                            <label class="label label-info">
+                                {{Page.Comment.Types[comment.CommentType]}}
+                            </label>
+                        </div>
+                        <div class="row" ng-bind-html="comment.CommentBody"></div>
+                        <div class="row">{{comment.CommentToURL}}</div>
+                    </div>
+                    <div class="col-lg-1" ng-show="{{comment.Edit}}">
+                        <button class="btn btn-default btn-sm" ng-click="UpdateComment(task,comment.ID)"><span class="glyphicon glyphicon-refresh"></span> </button>
+                    </div>
+                </div>
+
+                <hr>
+
+            </div>
+            <button class="btn btn-default" type="button" ng-click="CreateCommentForTask(task)">{{Page.Task.CreateComment}}</button>
+        </div>
+    </div>
+
+</div>

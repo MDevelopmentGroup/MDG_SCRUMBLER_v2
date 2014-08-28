@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.TechnoDoc">
+<Description>
+Технологическая документация</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63392,60233.533063</TimeCreated>
+
+<Property name="Type">
+<Description>
+0-Инициирующий, 1-Завершающий</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Описание задачи
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>TechnoDocs</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="AuthorIndex">
+<Properties>Author</Properties>
+</Index>
+
+<Property name="Task">
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>TechoDocs</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="SourceTexts">
+<Description>
+Исходный текст</Description>
+<Type>Scrumbler.TechnoDoc.SourceText</Type>
+<Cardinality>many</Cardinality>
+<Inverse>TechnoDoc</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Sources">
+<Description>
+Реурсы (пока ссылки)</Description>
+<Type>Scrumbler.TechnoDoc.Source</Type>
+<Cardinality>many</Cardinality>
+<Inverse>TechnoDoс</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Targets">
+<Description>
+Цели для задачи</Description>
+<Type>Scrumbler.TechnoDoc.Target</Type>
+<Cardinality>many</Cardinality>
+<Inverse>TechnoDoc</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Annotations">
+<Description>
+Описания задачи</Description>
+<Type>Scrumbler.TechnoDoc.Annotation</Type>
+<Cardinality>many</Cardinality>
+<Inverse>TechnoDoc</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TechnoDocD</DataLocation>
+<DefaultData>TechnoDocDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TechnoDocD</IdLocation>
+<IndexLocation>^Scrumbler.TechnoDocI</IndexLocation>
+<StreamLocation>^Scrumbler.TechnoDocS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TechnoDocDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Annotation</Value>
+</Value>
+<Value name="3">
+<Value>SourceText</Value>
+</Value>
+<Value name="4">
+<Value>Sources</Value>
+</Value>
+<Value name="5">
+<Value>Targets</Value>
+</Value>
+<Value name="6">
+<Value>CreationTime</Value>
+</Value>
+<Value name="7">
+<Value>Author</Value>
+</Value>
+<Value name="8">
+<Value>Task</Value>
+</Value>
+<Value name="9">
+<Value>Type</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,33 @@
+<div class="row">
+    {{Page.Search.Count}} -
+    {{SearchData.length}}
+    <hr>
+</div>
+<div ng-repeat="item in SearchData">
+    <div class="row">
+        <div ng-if="item.Type=='Task'">
+            <div class="row">
+                <div class="col-lg-1">
+                    <label class="label label-info">{{item.Type}}</label>
+                </div>
+                <div class="col-lg-7">
+                    <a href="#/Tasks/{{item.ID}}"><span ng-bind-html="item.Name"></span></a>
+                </div>
+            </div>
+
+        </div>
+        <div ng-if="item.Type=='Comment'">
+            <div class="row">
+                <div class="col-lg-1">
+                    <label class="label label-info">{{item.Type}}</label>
+                </div>
+                <div class="col-lg-7">
+                    <a href="#/Comments/{{item.ID}}"><span ng-bind-html="item.Name"></span></a>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <hr style="margin: 5px">
+</div>

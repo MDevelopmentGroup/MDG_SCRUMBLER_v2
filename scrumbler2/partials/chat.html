@@ -1,0 +1,136 @@
+
+		<div  ng-hide="{{ChatMenu()}}"
+		style="
+		width:50px;
+		height: 200px;
+
+		border: 2px solid #eee;
+		border-bottom-left-radius: 8px;
+		border-top-left-radius: 8px;
+		background: #428bca;
+		position: fixed;
+		right: 0px;
+		z-index:1;
+		top: 40%;">
+		<div style="padding-left: 8px;">
+
+		<input type="radio" id="radio1" name="onoff">
+		<input type="radio" id="radio2" name="onoff">
+
+		<label style="font-size: 9pt" for="radio1">on off </label>
+		<!-- <label  style="font-size: 10pt" for="radio2"></label>
+
+
+		<style>
+
+		input[type=radio] {
+			display:none;
+			margin:2px;
+		}
+
+		input[type=radio] + label {
+			display:inline-block;
+			margin:-2px;
+			padding: 0px 6px;                           BasicNameValuePair
+			background-color: rgb(44,211,255);
+			border-color: rgb(44,211,255);
+		}
+
+		input[type=radio]:checked + label {
+			background-image: none;
+			background-color: #30ff10;
+		}
+		</style>        -->
+		</div>
+
+		<hr style="margin-top:5px ;margin-bottom:5px ">
+		<a ng-click="ChatHide = !ChatHide"
+		class="btn" style="
+		width: 40px;
+		height: 40px;
+		background: #2a6496;
+		margin:2px 1px 1px 2px;
+		">
+		<span class="glyphicon glyphicon-comment"></span>
+
+		<hr style="margin-top:5px ;margin-bottom:5px ">
+
+		<a 
+		class="btn" style="
+		width: 40px;
+		height: 40px;
+		background: #2a6496;
+		margin:2px 1px 1px 2px;
+		"><span class="glyphicon glyphicon-remove"></span>
+
+		<hr style="margin-top:5px ;margin-bottom:5px ">
+
+		<a class="btn" style="
+		width: 40px;
+		height: 40px;
+		background: #2a6496;
+		padding-left:5px;
+		margin:2px 1px 1px 2px;
+		"><img src="img/settings.png" style="
+		display: block;
+		width: 29px;
+		height: 29px;"></a>
+		<hr style="margin-top:5px ;margin-bottom:5px ">
+		</div>
+
+
+
+		<div ng-init="ChatHide='true'"></div>
+
+		<div
+		ng-hide="ChatHide"
+		style="
+		width: 300px;
+		height: 400px;
+		max-width: 300px;
+		max-height: 400px;
+
+		background: #ffffff;
+		border: 2px solid #e7e7e7;
+		border-top-left-radius: 10px;
+		border-bottom-left-radius: 10px;
+		border-bottom-right-radius: 10px ;
+		position: fixed;
+		top: 300px;
+		z-index:1;
+		right: 60px;">
+
+
+		<div ng-controller="ChatCtrl">
+		<form class="form-horizontal" name="MessageForm" ng-model = "m" ng-submit="SendMessage(m);">
+		<textarea onkeydown="keyDown(event)" rows="5" ng-model="m.Message" style="height: 95px; width: 294px"></textarea><br>
+		<script>
+		function keyDown(e)
+		{
+			if(e.keyCode == 13 ) {
+				document.getElementById('send').click();
+			}
+		}
+
+		</script>
+		<input id="send"  class="btn btn-small btn-success" type="submit" value="Отправить" ng-show="MessageForm.$dirty">
+		</form>
+		<div style='overflow: auto;
+		height: 300px;'>
+		<ul class="nav nav-pills nav-stacked">
+		<li id="texttext" ng-repeat="message in messages">
+		<div >
+		<img src="{{message.Gravatar}}" width=25 height=25 class=img-rounded>
+<strong>{{message.FirstName }}</strong>
+{{message.Message}}
+		<a href="{{message.Route}}"><span class="glyphicon glyphicon-share-alt"></span></a>
+		</div>
+
+		</li>
+		</ul>
+		</div>
+
+		</div>
+
+
+        </div>

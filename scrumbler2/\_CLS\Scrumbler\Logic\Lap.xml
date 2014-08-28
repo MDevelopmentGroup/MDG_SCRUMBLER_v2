@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Lap">
+<TimeCreated>63358,51463.568758</TimeCreated>
+
+<Method name="Get">
+<Description>
+получить "круги"(попытки) по задаче. tid- task id</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>tid</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	&sql(select ID,Task,UserShooter,TimeStampEnd,TimeStampBegin,isHited from Scrumbler.lap where Task =:tid)
+		
+	
+	ret $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="StartLap">
+<Description>
+Начать круг. tid- task id допилить</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>tid,ptime:%String="6:00"</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+///TODO
+	set uid=##class(WEB.Auth).GetCurrentUser(), lap=##class(Scrumbler.Lap).%New(), task=##class(Scrumbler.Task).%OpenId(tid), lap.Task=task
+	if (task.TimeStampBegin=""){ set task.TimeStampBegin=$zdt($h,3)}
+	set task.UserShooter=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser()), 
+	lap.TimeStampBegin=task.TimeStampBegin
+	ret $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="DeleteLap">
+<Description>
+Удалить круг</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>tid</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	
+	ret $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="SuccessfulLap">
+<Description>
+Успешное завершение круга</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	
+	ret $$$OK
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[
+/// 
+
+]]></Content>
+</UDLText>
+</Class>
+</Export>

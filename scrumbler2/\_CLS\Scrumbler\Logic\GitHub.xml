@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.GitHub">
+<Abstract>1</Abstract>
+<TimeCreated>63390,51502.12138</TimeCreated>
+
+<Method name="Authorization">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Https=1
+	set HttpRequest.Port=443
+	set HttpRequest.Location="91.247.68.36:8090"
+	set HttpRequest.SSLConfiguration="GitHub.com"
+	set HttpRequest.Timeout=5
+	set HttpRequest.Server="api.github.com"
+	set st= HttpRequest.Get("/")
+	zw st
+	
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	zw Response
+	q st
+]]></Implementation>
+</Method>
+
+<Method name="CreateRepo">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Param:%Text="",RepoName</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Https=1
+	set HttpRequest.Port=443
+	set HttpRequest.Location="91.247.68.36:8090/csp/mdg-scrumbler-2/"
+	set HttpRequest.SSLConfiguration="GitHub.com"
+	set HttpRequest.Timeout=10
+	///set HttpRequest.Authorization="token 7a481f08e608ca050a1ab9142b329480be51604e"
+	set user=##class(WEB.Auth).GetCurrentUserObj()
+	if user.GitHubLogin'="" {set HttpRequest.Username=user.GitHubLogin}
+	if user.GitHubPassword'="" {set HttpRequest.Password=user.GitHubPassword}
+	set HttpRequest.Server="api.github.com"
+	set Param="/user/repos"
+	
+	set str="{""name"":"""_RepoName_"""}"
+	
+	set temp=##class(%FileCharacterStream).%New()
+	set temp.TranslateTable="UTF8"
+	do temp.Write(str)
+	
+	set HttpRequest.ContentType="application/json"
+	set HttpRequest.EntityBody=temp
+	set st= HttpRequest.Post(Param)
+	w str
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	zw Response
+	q st
+]]></Implementation>
+</Method>
+
+<Method name="DeleteRepo">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Param:%Text="",RepoName</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Https=1
+	set HttpRequest.Port=443
+	set HttpRequest.Location="91.247.68.36:8090/csp/mdg-scrumbler-2/"
+	set HttpRequest.SSLConfiguration="GitHub.com"
+	set HttpRequest.Timeout=10
+	if user.GitHubLogin'="" {set HttpRequest.Username=user.GitHubLogin}
+	if user.GitHubPassword'="" {set HttpRequest.Password=user.GitHubPassword}
+	set HttpRequest.Server="api.github.com"
+	set Param="/repos/"_HttpRequest.Username_"/"_RepoName
+	
+	set st= HttpRequest.Send("DELETE",Param)
+	zw st
+	
+	
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	zw Response
+	q st
+]]></Implementation>
+</Method>
+
+<Method name="CreateIssue">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Param:%Text=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Https=1
+	set HttpRequest.Port=443
+	set HttpRequest.Location="91.247.68.36:8090/csp/mdg-scrumbler-2/"
+	set HttpRequest.SSLConfiguration="GitHub.com"
+	set HttpRequest.Timeout=10
+	///set HttpRequest.Authorization="token 7a481f08e608ca050a1ab9142b329480be51604e"
+	set user=##class(WEB.Auth).GetCurrentUserObj()
+	if user.GitHubLogin'="" {set HttpRequest.Username=user.GitHubLogin}
+	if user.GitHubPassword'="" {set HttpRequest.Password=user.GitHubPassword}
+	set HttpRequest.Server="api.github.com"
+	set Param="/repos/"_HttpRequest.Username_"/"_obj.issue.reponame_"/issues"
+	
+	set str="{""title"":"""_obj.issue.title_""",""body"":"""_obj.issue.body_"""}"
+	
+	set temp=##class(%FileCharacterStream).%New()
+	set temp.TranslateTable="UTF8"
+	do temp.Write(str)
+	
+	set HttpRequest.ContentType="application/json"
+	set HttpRequest.EntityBody=temp
+	set st= HttpRequest.Post(Param)
+	w str
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	zw Response
+	q st
+]]></Implementation>
+</Method>
+
+<Method name="GetGitHubRepo">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set cUser=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Https=1
+	set HttpRequest.Port=443
+	set HttpRequest.Location="91.247.68.36:8090/csp/mdg-scrumbler-2/"
+	set HttpRequest.SSLConfiguration="GitHub.com"
+		
+	set HttpRequest.Timeout=10
+	set HttpRequest.ContentType="application/json"
+	//if user.GitHubLogin'="" {set HttpRequest.Username=user.GitHubLogin}
+	//set HttpRequest.Username="Fevralia"
+	set HttpRequest.Username="MariaMaria03"
+	//if user.GitHubPassword'="" {set HttpRequest.Password=user.GitHubPassword}
+	//set HttpRequest.Password="14021994Katia"
+	set HttpRequest.Password="github2014"
+	set HttpRequest.Server="api.github.com"
+	set Param="/user/repos"
+	
+	set st= HttpRequest.Get(Param)
+	
+	//set st=ex.AsStatus()	
+	
+	//zw st
+	
+	
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	
+	w Response
+	
+	
+	zw vrem
+	q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

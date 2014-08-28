@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.TechnoDoc.Source">
+<Super>%Persistent</Super>
+<TimeCreated>63392,67938.12204</TimeCreated>
+
+<Property name="TechnoDoс">
+<Type>Scrumbler.TechnoDoc</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Sources</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TechnoDoсIndex">
+<Properties>TechnoDoс</Properties>
+</Index>
+
+<Property name="Title">
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="100000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="URL">
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="100000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Query name="GetSourcesByTechnoDocID">
+<Type>%SQLQuery</Type>
+<FormalSpec>ID:%String</FormalSpec>
+<SqlQuery>SELECT %ID,URL,Title FROM Source
+ WHERE (TechnoDoс = :ID)
+ ORDER BY %ID</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TechnoDoc.SourceD</DataLocation>
+<DefaultData>SourceDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TechnoDoc.SourceD</IdLocation>
+<IndexLocation>^Scrumbler.TechnoDoc.SourceI</IndexLocation>
+<StreamLocation>^Scrumbler.TechnoDoc.SourceS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SourceDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>TechnoDoс</Value>
+</Value>
+<Value name="3">
+<Value>URL</Value>
+</Value>
+<Value name="4">
+<Value>Company</Value>
+</Value>
+<Value name="5">
+<Value>Author</Value>
+</Value>
+<Value name="6">
+<Value>Title</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

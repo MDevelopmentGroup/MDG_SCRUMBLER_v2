@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="WEB.UnAuth">
+<Description>
+Брокер для неавторизованных пользователей</Description>
+<Super>%Persistent,%XML.Adaptor</Super>
+<TimeCreated>63354,68671.192984</TimeCreated>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^WEB.UnAuthD</DataLocation>
+<DefaultData>UnAuthDefaultData</DefaultData>
+<IdLocation>^WEB.UnAuthD</IdLocation>
+<IndexLocation>^WEB.UnAuthI</IndexLocation>
+<StreamLocation>^WEB.UnAuthS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="UnAuthDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

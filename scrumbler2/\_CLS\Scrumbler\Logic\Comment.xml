@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Comment">
+<TimeCreated>63361,50968.638993</TimeCreated>
+
+<Method name="GetCommentByTask">
+<Description>
+Возвращаем все комментарии по задаче/проекту</Description>
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set user=##class(WEB.Auth).GetCurrentUser()
+	if (##class(Scrumbler.Task).%ExistsId(ID))
+	{
+		set SQL="select *, ComentAuthor->Gravatar, ComentAuthor->FirstName, Util.Util_GetTagsForComment(ID) As Tags, "_
+		"Util.Util_CommentEditRule("_user_", ComentAuthor->ID ) AS Edit "_
+		""_
+		" from Scrumbler.Comment where Task="_ID
+    	try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    	catch ex{set st=ex.AsStatus()}
+	}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetLastComment">
+<Description>
+Получить последние комментарии по списку(список в виде строки через запятую)</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	try{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set sql="select DISTINCT BY (Task) Task,CommentBody from Scrumbler.Comment"_
+		" where Task in ("_obj.Id_") order by CreationTime"
+		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+	}
+    catch ex{set st=ex.AsStatus()}
+	ret st
+]]></Implementation>
+</Method>
+
+<Method name="GetComments">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	#dim SQL As %String="select *, ComentAuthor->Gravatar,  Util.Util_GetTagsForComment(ID) As Tags from Scrumbler.Comment "
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()}
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetCommentByID">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	if (##class(Scrumbler.Comment).%ExistsId(ID)){
+	#dim SQL As %String="select *, ComentAuthor->Gravatar,  Util.Util_GetTagsForComment(ID) As Tags from Scrumbler.Comment where ID="_ID
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()}}
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="CreateCommentForTask">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set comment=##class(Scrumbler.Comment).%New()
+	set task=##class(Scrumbler.Task).%OpenId(obj.Task)
+	set comment.ComentAuthor=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set comment.Task=task	
+	set comment.CommentType=obj.CommentType
+	set comment.CommentBody=$ZCONVERT(obj.CommentBody,"I","UTF8")
+	if (obj.SourceText'=""){set comment.SourceText=$ZCONVERT(obj.SourceText,"I","UTF8")}
+	
+	$$$THROWONERROR(st,comment.%Save())
+	
+	if (obj.Tags'=""){
+		set st=##class(Scrumbler.Logic.Tags).AddTagsForComment(comment,obj)
+		
+		}
+	set st=##class(Scrumbler.Logic.Event).Create(task,comment,,9)
+	}
+	Catch ex{set st=ex.AsStatus()}
+	
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set comment=##class(Scrumbler.Comment).%OpenId(obj.ID)
+	set comment.ComentAuthor=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set comment.Task=##class(Scrumbler.Task).%OpenId(obj.Task)
+	set comment.CommentType=obj.CommentType
+	set comment.CommentBody=$ZCONVERT(obj.CommentBody,"I","UTF8")
+	if (obj.SourceText'=""){set comment.SourceText=$ZCONVERT(obj.SourceText,"I","UTF8")}
+	$$$THROWONERROR(st,comment.%Save())
+
+	if (obj.Tags'=""){
+	set st=##class(Scrumbler.Logic.Tags).AddTagsForComment(comment,obj)
+		}
+	} 
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>task:Scrumbler.Task,obj:%ZEN.proxyObject,CommentType=0</FormalSpec>
+<ReturnType>Scrumbler.Comment</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	Try
+	{
+		set comment=##class(Scrumbler.Comment).%New()
+		set comment.CommentBody=$ZCONVERT(obj.CommentBody,"I","UTF8")
+		if (obj.SourceText'=""){set comment.SourceText=$ZCONVERT(obj.SourceText,"I","UTF8")}
+		set comment.CommentType=CommentType
+		set comment.ComentAuthor=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+		set comment.Task=task
+		$$$THROWONERROR(st,comment.%Save())
+	}
+	Catch ex{set st=ex.AsStatus()}
+	q comment
+]]></Implementation>
+</Method>
+
+<Method name="SetCommentIsOpen">
+<Description>
+Метод для вычисляемого поля IsOpen</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set st=1
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set st=task.isOpenSource
+	}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="SetCommentIsDelete">
+<Description>
+Метод для вычисляемого поля IsDelete</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set st=0
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+	set task=##class(Scrumbler.Task).%OpenId(ID)
+	set st=task.IsDelete
+	}
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

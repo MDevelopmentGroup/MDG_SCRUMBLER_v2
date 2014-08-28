@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Target">
+<Description>
+Цели проекта</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63355,84684.808806</TimeCreated>
+
+<Property name="Task">
+<Description>
+Задача</Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Targets</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="Target">
+<Description>
+Цель</Description>
+<Type>Scrumbler.Template</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Targets</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TargetIndex">
+<Properties>Target</Properties>
+</Index>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Targets</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TargetD</DataLocation>
+<DefaultData>TargetDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TargetD</IdLocation>
+<IndexLocation>^Scrumbler.TargetI</IndexLocation>
+<StreamLocation>^Scrumbler.TargetS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TargetDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Targets</Value>
+</Value>
+<Value name="3">
+<Value>Target</Value>
+</Value>
+<Value name="4">
+<Value>Goal</Value>
+</Value>
+<Value name="5">
+<Value>Task</Value>
+</Value>
+<Value name="6">
+<Value>UserGroup</Value>
+</Value>
+<Value name="7">
+<Value>Company</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

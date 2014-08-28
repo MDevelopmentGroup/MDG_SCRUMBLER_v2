@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.ScrumblerUser">
+<Super>%Library.Persistent</Super>
+<TimeCreated>63357,39525.701984</TimeCreated>
+
+<Property name="UserComments">
+<Description>
+TODO: Добавить пол пользователя для корректного обращения</Description>
+<Type>Scrumbler.Comment</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ComentAuthor</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="FirstName">
+<Description>
+Имя</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="LastName">
+<Description>
+Фамилия</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="MiddleName">
+<Description>
+Отчество</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="Weight">
+<Description>
+Вес пользователя</Description>
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="UserType">
+<Description>
+Тип пользователя пользователя</Description>
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Image">
+<Description>
+Аватарка пользователя (хранится в базе)</Description>
+<Type>FileBase.Image</Type>
+<Cardinality>one</Cardinality>
+<Inverse>UserImage</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ImageIndex">
+<Properties>Image</Properties>
+</Index>
+
+<Property name="FileUpload">
+<Description>
+Загруженные пользователем файлы</Description>
+<Type>FileBase.FileClass</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Author</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Gravatar">
+<Description>
+Ссылка на фото</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="Images">
+<Description>
+Список всех фото пользователя</Description>
+<Type>FileBase.Image</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Author</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Settings">
+<Description>
+Настройки пользователя</Description>
+<Type>Scrumbler.Settings.UserSettings</Type>
+</Property>
+
+<Property name="UserTasksInitiator">
+<Description>
+Все проекты / задачи где пользователь автор </Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>many</Cardinality>
+<Inverse>UserInitiator</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="UserTasksShooter">
+<Description>
+Все проекты / задачи где пользователь Исполнитель </Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>many</Cardinality>
+<Inverse>UserShooter</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="UserLaps">
+<Description>
+Пользователь в кругах</Description>
+<Type>Scrumbler.Lap</Type>
+<Cardinality>many</Cardinality>
+<Inverse>UserShooter</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="ScrumblerUserGroups">
+<Type>Scrumbler.ScrumblerUserGroup</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ScrumblerUser</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="TagsAuthor">
+<Type>Scrumbler.Template</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Author</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="isActive">
+<Description>
+Активирована ли учетная запись</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="Email">
+<Description>
+Логин пользователя, почта</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Index name="EmailIndex">
+<Properties>Email</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Property name="Password">
+<Description>
+Пароль пользователя</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Method name="SetPassword">
+<Description>
+Установка пароля</Description>
+<FormalSpec>pass:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set ..Password=$System.Encryption.MD5Hash(pass)
+	//set ..Password=pass
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="M1">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//do ..%KillExtent()
+	set st=$$$OK
+	set u=##class(Scrumbler.ScrumblerUser).%New()
+	set u.Email="12345@q.ru"
+	set st= u.SetPassword("pass")
+	set u.FirstName="User"
+	set u.Weight=10
+	set u.UserType=0
+	set u.isActive=1
+	set st=u.%Save()
+	Q st
+]]></Implementation>
+</Method>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>ScrumblerUsers</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Property name="Session">
+<Type>%String</Type>
+</Property>
+
+<Property name="Events">
+<Type>Scrumbler.ScrumblerEvent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ScrumblerUser</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="DOB">
+<Description>
+Дата рождения</Description>
+<Type>%Date</Type>
+<Parameter name="FORMAT" value="4"/>
+</Property>
+
+<Property name="Telephone">
+<Description>
+Телефон</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="GitHubLogin">
+<Type>%String</Type>
+</Property>
+
+<Property name="TechnoDocs">
+<Type>Scrumbler.TechnoDoc</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Author</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="GitHubPassword">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.ScrumblerUserD</DataLocation>
+<DefaultData>ScrumblerUserDefaultData</DefaultData>
+<IdLocation>^Scrumbler.ScrumblerUserD</IdLocation>
+<IndexLocation>^Scrumbler.ScrumblerUserI</IndexLocation>
+<StreamLocation>^Scrumbler.ScrumblerUserS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ScrumblerUserDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>FirstName</Value>
+</Value>
+<Value name="3">
+<Value>LastName</Value>
+</Value>
+<Value name="4">
+<Value>MiddleName</Value>
+</Value>
+<Value name="5">
+<Value>Weight</Value>
+</Value>
+<Value name="6">
+<Value>UserType</Value>
+</Value>
+<Value name="7">
+<Value>Image</Value>
+</Value>
+<Value name="8">
+<Value>Gravatar</Value>
+</Value>
+<Value name="9">
+<Value>Settings</Value>
+</Value>
+<Value name="10">
+<Value>CreationTime</Value>
+</Value>
+<Value name="11">
+<Value>isActive</Value>
+</Value>
+<Value name="12">
+<Value>Email</Value>
+</Value>
+<Value name="13">
+<Value>Password</Value>
+</Value>
+<Value name="14">
+<Value>Company</Value>
+</Value>
+<Value name="15">
+<Value>Session</Value>
+</Value>
+<Value name="16">
+<Value>DOB</Value>
+</Value>
+<Value name="17">
+<Value>Telephone</Value>
+</Value>
+<Value name="18">
+<Value>GitHubLogin</Value>
+</Value>
+<Value name="19">
+<Value>GitHubPassword</Value>
+</Value>
+<Value name="20">
+<Value>FileUpload</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

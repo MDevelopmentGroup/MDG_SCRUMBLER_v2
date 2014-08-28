@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Comment">
+<Super>%Persistent</Super>
+<TimeCreated>63357,39606.342954</TimeCreated>
+
+<Property name="CommentBody">
+<Description>
+Собственно сам комментарий</Description>
+<Type>%Text</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="10000000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="CommentType">
+<Description>
+Тип комментария
+от 0 до 10; Инициирующий, Завершающий и т.д.</Description>
+<Type>%Integer</Type>
+<Required>1</Required>
+<Parameter name="VALUELIST" value=",0,1,2,3,4,5,6,7,8,9,10"/>
+</Property>
+
+<Property name="ComentAuthor">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>UserComments</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ComentAuthorIndex">
+<Properties>ComentAuthor</Properties>
+</Index>
+
+<Property name="Task">
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Comments</Inverse>
+<Relationship>1</Relationship>
+<Required>1</Required>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="Tags">
+<Type>Scrumbler.Tag</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Comment</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Events">
+<Type>Scrumbler.ScrumblerEvent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Comment</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="isOpen">
+<Type>%Boolean</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {isOpen}=##class(Scrumbler.Logic.Comment).SetCommentIsOpen({Task})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="IsDelete">
+<Description>
+Комментарии не удаляем, а лишь скрываем и делается это через задачу</Description>
+<Type>%Boolean</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {IsDelete}=##class(Scrumbler.Logic.Comment).SetCommentIsDelete({Task})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.CommentD</DataLocation>
+<DefaultData>CommentDefaultData</DefaultData>
+<IdLocation>^Scrumbler.CommentD</IdLocation>
+<IndexLocation>^Scrumbler.CommentI</IndexLocation>
+<StreamLocation>^Scrumbler.CommentS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="CommentDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>CommentBoby</Value>
+</Value>
+<Value name="3">
+<Value>SourceText</Value>
+</Value>
+<Value name="4">
+<Value>CommentType</Value>
+</Value>
+<Value name="5">
+<Value>ComentAuthor</Value>
+</Value>
+<Value name="6">
+<Value>Task</Value>
+</Value>
+<Value name="7">
+<Value>CreationTime</Value>
+</Value>
+<Value name="8">
+<Value>CommentBody</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

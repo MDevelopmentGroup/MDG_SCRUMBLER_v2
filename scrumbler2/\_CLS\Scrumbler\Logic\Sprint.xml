@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Sprint">
+<TimeCreated>63363,43628.402844</TimeCreated>
+
+<Method name="GetSprints">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    set st=$$$OK
+    
+    #dim SQL As %String="select *, UserInitiator->FirstName, UserInitiator->LastName, UserInitiator->Gravatar from Scrumbler.Task where LastElement=1 and UserShooter is null and IsDelete=0"
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()
+    }
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetSprintsByTask">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    set st=$$$OK
+    #dim SSN As %String=""
+    if (##class(Scrumbler.Task).%ExistsId(ID)){
+        set task=##class(Scrumbler.Task).%OpenId(ID)
+        if (task.MasterTask=""){set SSN=task.%Id()}
+        else{set SSN=task.SSN_"|"_ID}
+        
+        #dim SQL As %String="select *, UserInitiator->FirstName, UserInitiator->LastName, UserInitiator->Gravatar from Scrumbler.Task where LastElement=1 and UserShooter is null and SSN like '"_SSN_"%' and IsDelete=0"
+        try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+        catch ex{set st=ex.AsStatus()
+        }
+    }
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="SetShooterForTask">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st as %Status=$$$OK
+    try{
+        $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+        set task=##class(Scrumbler.Task).%OpenId(obj.ID)
+
+        set task.UserShooter=##class(Scrumbler.ScrumblerUser).%OpenId(obj.ShooterID)
+
+        set st=task.%Save()
+        do ##class(Util.Mail.SendMail).NewMail(task.%Id(),"","TaskSetted","")
+
+        }
+    catch ex{set st=ex.AsStatus()}
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="TasksInTheWork">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    set st=$$$OK
+    
+    set SQL ="select ID, Name, ScrumblerGroup, UserInitiator->FirstName, UserInitiator->LastName, UserInitiator->Gravatar, "_
+             "UserShooter->FirstName As SFirstName, UserShooter->LastName AS SLastName, UserShooter->Gravatar As SGravatar  "_
+             "from Scrumbler.Task where LastElement=1 and UserShooter is not null and ID in "_
+             "(select Task->ID from Scrumbler.Lap where TimeStampBegin!='' and TimeStampEnd is null)"
+    try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+    catch ex{set st=ex.AsStatus()
+    }
+    quit st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

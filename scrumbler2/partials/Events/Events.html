@@ -1,0 +1,47 @@
+<div class="" ng-repeat="event in events">
+    <div class="row">
+        <div class="row">
+            <div class="col-lg-1" ng-bind-html="event.EType|FilterEventTypes"></div>
+            <div class="col-lg-3"> {{Page.Events.EventTypes[event.EType]}}</div>
+            <div class="col-lg-6"> </div>
+            <div class="col-lg-2">
+                <div class="row">
+                    <a href="#/User/{{event.UserID}}">
+                        <div class="col-lg-4">
+                            <img style="max-height: 30px" class="img-rounded" ng-src="{{event.Gravatar}}">
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                {{event.FirstName}}
+                            </div>
+                            <div class="row">
+                                {{event.LastName}}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+            <div class="row" ng-if="event.EType=== 1||2||3||4||5||9||10||11||12">
+                <a href="#/Task/{{event.TaskID}}">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-3">{{event.TaskName}}</div>
+                </a>
+            </div>
+            <div class="row" ng-if="event.EType== 6">
+                <a href="#/User/{{event.UserID}}">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-3">{{event.TaskName}}</div>
+                </a>
+            </div>
+            <div class="row" ng-if="event.EType== 7">
+                <a href="#/Group/{{event.GroupID}}">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-3">{{event.GroupName}}</div>
+                </a>
+            </div>
+
+
+    </div>
+    <hr style="margin: 4px">
+</div>

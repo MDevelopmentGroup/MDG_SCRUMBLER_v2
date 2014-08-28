@@ -1,0 +1,138 @@
+<div>
+    <form class="form-horizontal" ng-model="company" ng-submit="submit(company)">
+        <div class="form-group">
+            <label class="control-label col-lg-2"> </label>
+            <div class="col-lg-5">
+                <img ng-src="http://146.185.178.14:80/img/{{company.Image}}">
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> Регистрация компании в Scrumbler:</label>
+            <div class="col-lg-5">
+                <select class="form-control" ng-model="company.Company" required="" ng-change="SetNameAndImage(companies,company.Company)" >
+                    <option ng-repeat="company in companies" value="{{company.ID}}">{{company.Name}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> Название:</label>
+            <div class="col-lg-5" >
+                <input type="text" class="form-control" ng-model="company.Name"  required=""  />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> Открытая/закрытая:</label>
+            <div class="col-lg-1" ng-init="company.isOpen=true">
+                <input type="checkbox" class="form-control" ng-model="company.isOpen"   />
+            </div>
+        </div>
+
+        <hr>
+
+
+        <div class="row">
+            <div class="col-lg-3">
+                <img ng-src="{{company.Gravatar}}" style="max-width: 150px">
+            </div>
+            <div class="col-lg-9">
+
+
+
+                <!--<div class="row">{{user.FirstName}}</div>
+                <div class="row">{{user.LastName}}</div>
+                <div class="row">{{user.MiddleName}}</div> -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="Email">
+                    {{Page.CreateUser.Email}}
+                </label>
+                <div class="col-lg-5">
+                    {{company.Email|FilterSuccessEmailStatus:LoginStatus}}
+                    <input type="email" id="Email" ng-change="GetGravatar(company.Email)" class="form-control {{company.Email|FilterRequiredInput:LoginStatus}}" ng-model="company.Email" placeholder="{{Page.CreateUser.Email}}" required="" ng-blur="LoginIsValid(company)" >
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="Gravatar">
+                    {{Page.CreateUser.Gravatar}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="url" id="Gravatar" class="form-control " ng-model="company.Gravatar" placeholder="{{Page.CreateUser.Gravatar}}" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="Telephone">
+                    {{Page.Registration.Telephone}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="text" id="Telephone" ng-change="PhoneNumberFilter(company.Telephone)" class="form-control " ng-model="company.Telephone" placeholder="{{Page.Registration.Telephone}}" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="FirstName">
+                    {{Page.CreateUser.FirstName}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="text" id="FirstName" class="form-control" ng-model="company.FirstName" placeholder="{{Page.CreateUser.FirstName}}" required="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="LastName">
+                    {{Page.CreateUser.LastName}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="text" id="LastName" class="form-control" ng-model="company.LastName" placeholder="{{Page.CreateUser.LastName}}" required="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="MiddleName">
+                    {{Page.CreateUser.MiddleName}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="text" id="MiddleName" class="form-control" ng-model="company.MiddleName"  placeholder="{{Page.CreateUser.MiddleName}}" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="DOB">
+                    {{Page.CreateUser.DOB}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="text" id="DOB" class="form-control" ng-model="company.DOB"  data-date-type="string" data-max-date="today" data-autoclose="1" bs-datepicker >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="Password">
+                    {{Page.CreateUser.Password}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="password" id="Password" class="form-control {{company.Password|FilterRequiredInput:1}}" ng-model="company.Password" placeholder="{{Page.CreateUser.Password}}" required="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-2" for="Password2">
+                    {{Page.CreateUser.Password2}}
+                </label>
+                <div class="col-lg-5">
+                    <input type="password" id="Password2" class="form-control {{company.Password2|FilterSuccessPassword:company.Password}}" ng-model="company.Password2" placeholder="{{Page.CreateUser.Password2}}" required="">
+                    {{company.Password2|FilterSuccessPasswordStatus:company.Password}}
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="form-group">
+            <label class="control-label col-lg-3"></label>
+            <div class="col-lg-4">
+               <button class="btn btn-default" type="submit">OK</button>
+            </div>
+        </div>
+    </form>
+</div>

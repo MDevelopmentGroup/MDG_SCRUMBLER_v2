@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Company">
+<TimeCreated>63357,61496.651067</TimeCreated>
+
+<Method name="GetCurrentCompany">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	ret ""
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set company=##class(Scrumbler.Company).%New()
+		set user=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+		
+		//if (obj.ImageID'=""){set company.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+		set company.Name=$ZCONVERT(obj.Name,"I","UTF8")
+		
+		set company.Author=user
+		set company.isOpen=obj.isOpen
+		set company.CompanyID=obj.Company
+		set st=company.%Save()
+		/// Да попадет пользователь создавший в компанию свою же и станет он её админом
+		/// И наделен он будет властью управлению ею и всякого люда вступающего в неё 
+		
+		//set user.Company=company
+		//set st=user.%Save()
+	}
+	Catch ex{ set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set company=##class(Scrumbler.Company).%OpenId(obj.ID)
+		if (obj.ImageID'=""){set company.Image=##class(FileBase.Image).%OpenId(obj.ImageID)}
+		set company.Name=$ZCONVERT(obj.Name,"I","UTF8")
+		set company.isOpen=obj.isOpen
+		set st=company.%Save()
+	}
+	Catch ex{ set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Get">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try{
+		if (##class(Scrumbler.Company).%ExistsId(ID)){
+			#dim SQL As %String="select * from Scrumbler.Company where ID="_ID
+			do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+		}
+	}
+	Catch ex{ set st=ex.AsStatus()}
+		
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetAll">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try{
+		
+		#dim SQL As %String="select * from Scrumbler.Company"
+		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+		
+	}
+	Catch ex{ set st=ex.AsStatus()}		
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="CreateCompanyAndAdminUser">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		#dim st As %Status=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set Comp=obj.Company
+		&sql(select count(ID) into:count from Scrumbler.Company where CompanyID=:Comp)
+		if (count<1){
+		set user=##class(Scrumbler.ScrumblerUser).%New()
+		
+		set user.Email=$ZCONVERT(obj.Email,"I","UTF8")
+		set user.FirstName=$ZCONVERT(obj.FirstName,"I","UTF8")
+		set user.LastName=$ZCONVERT(obj.LastName,"I","UTF8")
+		if (obj.MiddleName'=""){set user.MiddleName=$ZCONVERT(obj.MiddleName,"I","UTF8")}
+		set user.Gravatar=$ZCONVERT(obj.Gravatar,"I","UTF8")
+		set st=user.SetPassword(obj.Password)
+		set user.Weight=1		//obj.Weight
+		set user.UserType=1
+		set user.isActive=1
+		
+		if (obj.DOB'=""){set user.DOB=$ZDATEH(obj.DOB,4)}
+		set st= user.%Save()
+	
+		if (st){
+			/// Отправляем ссылку на почу для подтверждения регистрации
+			}
+		
+		
+		
+		set company=##class(Scrumbler.Company).%New()
+		set company.Name=$ZCONVERT(obj.Name,"I","UTF8")
+		set company.Author=user
+		set company.isOpen=obj.isOpen
+		set company.CompanyID=obj.Company
+		set st=company.%Save()
+		
+		set user.Company=company
+		set st=user.%Save()
+		}
+		else
+		{
+			Set %response.Status="403"
+			w "Пипец!!!"
+		}
+
+	}
+	Catch ex{ set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set user=##class(WEB.Auth).GetCurrentUser()
+	if (##class(Scrumbler.Company).%ExistsId(ID)){
+		set company=##class(Scrumbler.Company).%OpenId(ID)
+		if (company.Author.%Id()=user){
+			
+			/// Удаляем события
+			&sql(delete from Scrumbler.ScrumblerEvent where Company->ID=:ID)
+			/// Удаляем тэги
+			&sql(delete from Scrumbler.Tag where Company->ID=:ID)
+			/// Удаляем шаблоны (Templates)
+			&sql(delete from Scrumbler.Template where Company->ID=:ID)
+			/// Удаляем Задачи(круги и комментарии)
+						
+			/// Удаляем пользователей
+			&sql(delete from Scrumbler.ScrumblerUser where Company->ID=:ID)			
+			/// Удаляем компанию
+			&sql(delete from Scrumbler.Company where %ID=:ID)			
+			}
+		}
+]]></Implementation>
+</Method>
+</Class>
+</Export>

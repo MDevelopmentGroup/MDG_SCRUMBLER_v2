@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Tags">
+<TimeCreated>63377,40550.082701</TimeCreated>
+
+<Method name="GetTags">
+<Description>
+Список тэгов для auto-complete</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Text:%String=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+    try{
+	set company=##class(WEB.Auth).GetCurrentCompany()
+	set SQL="select  ID, Data As text "_
+			"from Scrumbler.Template "_
+			"where Company="_company_" and Type=1 "
+	if (Text'="") {
+		set SQL=SQL_"and Data like '%"_Text_"%'"
+		}
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<Description>
+Создаем тэги</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set tag=##class(Scrumbler.Template).%New()
+	set tag.Data=$ZCONVERT(obj.text,"I","UTF8")
+	set tag.Author=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set tag.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	set tag.Type=1 // 1 будет Тэгом
+	$$$THROWONERROR(st,tag.%Save())
+	/// Отправляем ID Тэга
+	w "{""ID"":"""_tag.%Id()_"""}"
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="DeleteTag">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set ID=obj.ID
+		&sql(delete from Scrumbler.Tag where Tag=:ID)
+		&sql(delete from Scrumbler.Template where ID=:ID)
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="DeleteTagFromTask">
+<Description>
+Удаляем теги у задачи</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	if (##class(Scrumbler.Tag).%ExistsId(obj.RowID)){
+		set st=##class(Scrumbler.Tag).%DeleteId(obj.RowID)
+	}
+	//$$$THROWONERROR(st,tag.%Save())
+
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="CheckUniqueTagForTask">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Task:%String,Tag:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set st=1
+	&sql(select count(ID) into:count from Scrumbler.Tag where Tag=:Tag and Task=:Task)
+	if (count>0){set st=0}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="CheckUniqueTagForComment">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Comment:%String,Tag:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set st=1
+	&sql(select count(ID) into:count from Scrumbler.Tag where Tag=:Tag and Comment=:Comment)
+	if (count>0){set st=0}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AddTagsForTask">
+<Description>
+Добавляем тэги задаче</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>task:Scrumbler.Task,obj:%ZEN.proxyObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+
+		for i=1:1:obj.Tags.Size {
+			set T= obj.Tags.Oref(i)
+				//TODO Предположительно здесь возникает ошибка при проверки на уникальность
+				//w !,task.%Id()," ",T.ID," U=",##class(Scrumbler.Logic.Tags).CheckUniqueTagForTask(task.%Id(),T.ID),!		
+			if (##class(Scrumbler.Template).%ExistsId(T.ID) && ##class(Scrumbler.Logic.Tags).CheckUniqueTagForTask(task.%Id(),T.ID)){									
+				set tag=##class(Scrumbler.Tag).%New()
+	       		set tag.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	       		set tag.Task=task
+	       		
+	       		set tag.Tag=##class(Scrumbler.Template).%OpenId(T.ID)
+	       		set st=tag.%Save()	
+				}
+		}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="AddTagsForComment">
+<Description>
+Добавляем тэги комментарию</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>comment:Scrumbler.Comment,obj:%ZEN.proxyObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+
+		for i=1:1:obj.Tags.Size {
+			set T= obj.Tags.Oref(i)
+				
+				
+			if (##class(Scrumbler.Template).%ExistsId(T.ID) && ##class(Scrumbler.Logic.Tags).CheckUniqueTagForComment(comment.%Id(),T.ID)){									
+				set tag=##class(Scrumbler.Tag).%New()
+	       		set tag.Company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+
+	       		set tag.Comment=comment
+	       		set tag.Tag=##class(Scrumbler.Template).%OpenId(T.ID)
+	       		set st=tag.%Save()	
+				}
+		}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetStatisticToTag">
+<Description>
+Количество задач с данным тегом</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>IdTag</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	&sql(select count(id) into :count from Scrumbler.Tag where Tag->Id=:IdTag)
+	w count
+	ret st
+]]></Implementation>
+</Method>
+
+<Method name="GetUserStatistic">
+<Description>
+Полная статистика по пользователю</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>UserId</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set str="{""children"":["
+	set str1=""
+	&sql(DECLARE getid CURSOR FOR 
+		SELECT id,Data INTO :idtag,:Data
+		FROM Scrumbler.Template		
+		order by id		
+		)
+	&sql(open getid)
+	&sql(fetch getid)
+	
+	while(SQLCODE=0){
+		set count=0
+		&sql(select count(id) into:count from Scrumbler.Tag 
+		where ((Task->UserShooter->Id=:UserId and Task->isHited=1) and Task->TimeStampEnd<>"") and tag->id=:idtag
+		)
+		if (count){
+		set str1=str1_"{""idtag"":"_idtag_","_
+			"""count"":"""_count_""","_
+			"""Data"":"""_Data_"""},"
+		}
+		&sql(fetch getid)
+	}
+	if ($length(str1)){
+		set str=str_$E(str1,1,*-1)
+	}
+	&sql(close getid)	
+	set str=str_"]}"
+	w str
+	ret st
+	ret st
+]]></Implementation>
+</Method>
+
+<Method name="GetStatForUser">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>IdTag,UserId</FormalSpec>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set str="select count(id) "_
+	"from Scrumbler.Task"_
+	"where id in (select Task->id from Scrumbler.Tag where Tag->id="_IdTag_") and UserShooter->Id="_IdUser	
+	//&sql(select count(Tag->Id) into :count from Scrumbler.Task where )
+	
+	ret st
+]]></Implementation>
+</Method>
+
+<Method name="GetStatistic">
+<Description>
+Метод выкидывает json с данными следующего характера: все теги с количеством задач содержащих данный тег</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set st1=""
+	set str="{"
+	set sql="SELECT distinct by (Tag->Id) Tag->Data as Data,Tag->Id as Id FROM Scrumbler.Tag "_
+		"where (Task->TimeStampEnd<>"""" and Task->isHited=1)"
+	set sttm=##class(%SQL.Statement).%New()
+	set sttm.%ObjectSelectMode=1
+	set st=sttm.%Prepare(sql)
+	set res=sttm.%Execute()
+	while(res.%Next()'=0){
+		set tagId=res.%Get("Id")
+		set Data=res.%Get("Data")
+		set maxcount=0
+		&sql(DECLARE getUserId CURSOR FOR
+		SELECT UserShooter into :UserId from Scrumbler.Task where 
+		isHited=1 and TimeStampEnd<>""
+		)
+		&sql(open getUserId)
+		&sql(fetch getUserId)
+		while(SQLCODE=0){
+			&sql(select count(id) into :count from Scrumbler.Tag where Tag->Id=:tagId and Task->UserShooter=:UserId)
+			if (maxcount<count){
+				set st1=st1_""""_Data_""":[{"
+				set st1=st1_" ""idtag"":"""_tagId_""","_
+				"""count"":"""_count_""","_
+				""":Data"":"""_Data_"""}],"
+				set maxcount=count
+			}
+			&sql(fetch getUserId)			
+		}
+		&sql(close getUserId)
+	}
+	if ($length(st1)){
+		set str=str_$E(st1,1,*-1)
+	}
+	set str=str_"}"
+	w str
+	ret st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Roles.User">
+<Super>%Persistent</Super>
+<TimeCreated>63398,39447.291454</TimeCreated>
+
+<Parameter name="g">
+<Description>
+"-g"  - чтение;</Description>
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="gm">
+<Description>
+"-gm" - чтение своих записей;</Description>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="c">
+<Description>
+"-c" - создание записай</Description>
+<Default>2</Default>
+</Parameter>
+
+<Parameter name="u">
+<Description>
+"-u" - обновление</Description>
+<Default>3</Default>
+</Parameter>
+
+<Parameter name="um">
+<Description>
+"-um" - обновление своих записей</Description>
+<Default>4</Default>
+</Parameter>
+
+<Parameter name="d">
+<Description>
+"-d"  - удаление; </Description>
+<Default>5</Default>
+</Parameter>
+
+<Parameter name="dm">
+<Description>
+"-dm" - удаление своиз записей;</Description>
+<Default>6</Default>
+</Parameter>
+
+<Property name="Tips">
+<Description>
+Права доступа к Подсказкам</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Method name="TipsGet">
+<ReturnType>%Integer</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	set x = i%Tips
+	set n = ""
+	while x > 0 
+	{
+    set y =x # 2
+    set n = y _ n    
+    set x = x \ 2
+    }
+    zw n
+    
+   w ..%GetParameter() 
+    
+ 
+	Quit ""
+]]></Implementation>
+</Method>
+
+<Method name="TipsSet">
+<FormalSpec>Args...</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	set Role=0
+	for i=1:1:Args {set Role=Role+$ZPOWER(2,..%GetParameter(Args(i)))}
+	set i%Tips=Role
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.Roles.UserD</DataLocation>
+<DefaultData>UserDefaultData</DefaultData>
+<IdLocation>^Scrumbler.Roles.UserD</IdLocation>
+<IndexLocation>^Scrumbler.Roles.UserI</IndexLocation>
+<StreamLocation>^Scrumbler.Roles.UserS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="UserDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Tips</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Users.Roles">
+<Description>
+Попытка описать все роли пользователей системы</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63395,11609.406815</TimeCreated>
+
+<Method name="M1">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set %response.ContentType ="application/json"
+	set obj=##class(Scrumbler.TechnoDoc.SourceText).%OpenId(1)
+	set j=##class(%ZEN.Auxiliary.jsonProvider).%New()
+	//set pV(obj)=$LB("Name")
+	//zw pV
+	do j.%ObjectToJSON(obj,.pV,,"aeloqtw")
+	//do j.%WriteJSONFromObject("myJSON","Scrumbler.Task","GetObject",,,"aceloqtw")
+	W !
+	zw pV
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.Users.RolesD</DataLocation>
+<DefaultData>RolesDefaultData</DefaultData>
+<IdLocation>^Scrumbler.Users.RolesD</IdLocation>
+<IndexLocation>^Scrumbler.Users.RolesI</IndexLocation>
+<StreamLocation>^Scrumbler.Users.RolesS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="RolesDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Tips</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

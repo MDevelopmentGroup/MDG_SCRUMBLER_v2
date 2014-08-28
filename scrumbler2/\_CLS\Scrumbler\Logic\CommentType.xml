@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.CommentType">
+<TimeCreated>63379,41875.91783</TimeCreated>
+
+<Method name="Create">
+<Description>
+Создаем тип комментария</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+</Method>
+
+<Method name="Delete">
+<Description>
+Удаляем тип комментария</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+</Method>
+</Class>
+</Export>

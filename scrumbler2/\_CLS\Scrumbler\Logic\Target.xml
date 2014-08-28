@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Target">
+<TimeCreated>63356,36678.160965</TimeCreated>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		#dim st as %Status=$$$OK
+		
+		Try
+		{
+			$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+			set target=##class(Scrumbler.Template).%New()
+			set target.Type=0
+			set target.Data=$ZCONVERT(obj.Data,"I","UTF8")
+			set target.Author=##class(Scrumbler.ScrumblerUser).%OpenId(1)		 //!!!!!!!!!!!!!!!!!!!!!!!!!
+			set target.Company=##class(Scrumbler.Company).%OpenId(1)             //!!!!!!!!!!!!!!!!!!!!!!!!!
+			set target.Image=##class(FileBase.Image).%OpenId(obj.ImageID)
+			set st=target.%ValidateObject()
+			if ('st){w "{""status"":"""_st_"""}"}
+		}
+		Catch ex{set st=ex.AsStatus()}
+		if (st){ do target.%Save()}
+		Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		#dim st as %Status=$$$OK
+		Try
+		{
+			$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+			set target=##class(Scrumbler.Template).%OpenId(obj.ID)
+			set target.Type=0
+			set target.Data=$ZCONVERT(obj.Data,"I","UTF8")
+			set target.Author=##class(Scrumbler.ScrumblerUser).%OpenId(1)
+			set target.Image=##class(FileBase.Image).%OpenId(obj.ImageID)
+			set st=target.%ValidateObject()
+			if ('st){w "{""status"":"""_st_"""}"}
+		}
+		Catch ex{set st=ex.AsStatus()}
+		if (st){ do target.%Save()}
+		Q st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	set %session.Data("UserID")=23
+	set %session.Data("CompanyID")=23
+	zw %session
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Get">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	#dim SQL As %String="select Data, Image->Name, Image->ID as ImageID from Scrumbler.Template where ID="_ID
+	if (##class(Scrumbler.Template).%ExistsId(ID)&&##class(Scrumbler.Logic.ScrumblerUser).UserInCompany()){
+		try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+   		catch ex{set st=ex.AsStatus()}	
+   	}
+   	else{ w ##class(Scrumbler.Logic.Util).AccessIsDenied()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetAll">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	#dim SQL As %String="select Data, Image->Name, Image->ID as ImageID from Scrumbler.Template where Type=0 Company="_##class(Scrumbler.Logic.Company).GetCurrentCompany()
+	if (##class(Scrumbler.Template).%ExistsId(ID)&&##class(Scrumbler.Logic.ScrumblerUser).UserInCompany()){
+		try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)}
+   		catch ex{set st=ex.AsStatus()}	
+   	}
+   	else{ w ##class(Scrumbler.Logic.Util).AccessIsDenied()}
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

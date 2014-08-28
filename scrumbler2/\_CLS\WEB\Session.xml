@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="WEB.Session">
+<Super>%Persistent</Super>
+<TimeCreated>63371,52251.649776</TimeCreated>
+
+<Property name="Data">
+<Type>%ArrayOfDataTypes</Type>
+</Property>
+
+<Property name="SessionId">
+<Type>%String</Type>
+</Property>
+
+<Index name="SessionIdIndex">
+<Properties>SessionId</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Property name="SUser">
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Property name="SSN">
+<Type>%String</Type>
+</Property>
+
+<Method name="SetData">
+<FormalSpec>index:%String,data:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[	Q ..Data.SetAt(data,index)
+]]></Implementation>
+</Method>
+
+<Method name="GetData">
+<FormalSpec>index:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Q ..Data.GetAt(index)
+]]></Implementation>
+</Method>
+
+<Method name="CreateSession">
+<Final>1</Final>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>UserID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st as %Status=$$$OK
+	set session=..%New()
+	set session.SessionId= ..CreateSSN()
+	set session.SUser=##class(Scrumbler.ScrumblerUser).%OpenId(UserID)
+	set session.IP =%request.GetCgiEnv("REMOTE_ADDR")	
+	set st=session.%Save()
+	do %response.SetCookie("ScrumblerSesson",session.SessionId,,"/")	
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="CreateSSN">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim str As %String="1"
+	set list1=$lb("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+	set list2=$lb("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")
+	for i=1:1:15
+	{
+		if ($r(2)){set str=str_$LIST(list2,$r($LL(list2))+1)_$r(99)}
+		else{ set str=str_$LIST(list2,$r($LL(list2))+1)_$r(99)}	
+	}
+	Q str
+]]></Implementation>
+</Method>
+
+<Method name="CreateHashIP">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ip =%request.GetCgiEnv("REMOTE_ADDR")
+	set ipMD5 =$system.Encryption.MD5Encode(ip)
+	set ipMD5HEX="" f i=1:1:$L(ipMD5) set ipMD5HEX=ipMD5HEX_$J($ZHEX($A(ipMD5,i)),2)
+	set ipMD5HEX=$TR(ipMD5HEX," ","0")
+	
+	Q $ZCONVERT(ipMD5HEX,"L")
+]]></Implementation>
+</Method>
+
+<Property name="IP">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^WEB.SessionD</DataLocation>
+<DefaultData>SessionDefaultData</DefaultData>
+<IdLocation>^WEB.SessionD</IdLocation>
+<IndexLocation>^WEB.SessionI</IndexLocation>
+<StreamLocation>^WEB.SessionS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SessionDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>SessionId</Value>
+</Value>
+<Value name="3">
+<Value>Data</Value>
+</Value>
+<Value name="4">
+<Value>TimeStart</Value>
+</Value>
+<Value name="5">
+<Value>TimeOut</Value>
+</Value>
+<Value name="6">
+<Value>TimeEnd</Value>
+</Value>
+<Value name="7">
+<Value>SUser</Value>
+</Value>
+<Value name="8">
+<Value>RememberMeSSN</Value>
+</Value>
+<Value name="9">
+<Value>SSN</Value>
+</Value>
+<Value name="10">
+<Value>IP</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

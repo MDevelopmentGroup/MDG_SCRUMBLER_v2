@@ -1,0 +1,129 @@
+<div>
+    <div class="well">
+        <form ng-model="user" class="form-horizontal" ng-submit="Submit(user)">
+            <h2>{{Page.Registration.Registration}}</h2>
+            {{Error}}
+            <hr>
+            <div class="row">
+                <div class="col-lg-3">
+                    <img ng-src="{{user.Gravatar}}" style="max-width: 150px">
+                </div>
+                <div class="col-lg-9">
+
+
+
+                    <!--<div class="row">{{user.FirstName}}</div>
+                    <div class="row">{{user.LastName}}</div>
+                    <div class="row">{{user.MiddleName}}</div> -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="Email">
+                        {{Page.CreateUser.Email}}
+                    </label>
+                    <div class="col-lg-5">
+                        {{user.Email|FilterSuccessEmailStatus:LoginStatus}}
+                        <input type="email" id="Email" ng-change="GetGravatar(user.Email)" class="form-control {{user.Email|FilterRequiredInput:LoginStatus}}" ng-model="user.Email" placeholder="{{Page.CreateUser.Email}}" required="" ng-blur="LoginIsValid(user)" >
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="Gravatar">
+                        {{Page.CreateUser.Gravatar}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="url" id="Gravatar" class="form-control " ng-model="user.Gravatar" placeholder="{{Page.CreateUser.Gravatar}}" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="Telephone">
+                        {{Page.Registration.Telephone}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="Telephone" ng-change="PhoneNumberFilter(user.Telephone)" class="form-control " ng-model="user.Telephone" placeholder="{{Page.Registration.Telephone}}" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="FirstName">
+                        {{Page.CreateUser.FirstName}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="FirstName" class="form-control" ng-model="user.FirstName" placeholder="{{Page.CreateUser.FirstName}}" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="LastName">
+                        {{Page.CreateUser.LastName}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="LastName" class="form-control" ng-model="user.LastName" placeholder="{{Page.CreateUser.LastName}}" required="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="MiddleName">
+                        {{Page.CreateUser.MiddleName}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="MiddleName" class="form-control" ng-model="user.MiddleName"  placeholder="{{Page.CreateUser.MiddleName}}" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="DOB">
+                        {{Page.CreateUser.DOB}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="DOB" class="form-control" ng-model="user.DOB"  data-date-type="string" data-max-date="today" data-autoclose="1" bs-datepicker >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="Password">
+                        {{Page.CreateUser.Password}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="password" id="Password" class="form-control {{user.Password|FilterRequiredInput:1}}" ng-model="user.Password" placeholder="{{Page.CreateUser.Password}}" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="Password2">
+                        {{Page.CreateUser.Password2}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="password" id="Password2" class="form-control {{user.Password2|FilterSuccessPassword:user.Password}}" ng-model="user.Password2" placeholder="{{Page.CreateUser.Password2}}" required="">
+                        {{user.Password2|FilterSuccessPasswordStatus:user.Password}}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="GitHubLogin">
+                        {{Page.CreateUser.GitHubLogin}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="GitHubLogin" class="form-control {{user.GitHubLogin|FilterRequiredInput:1}}" ng-model="user.GitHubLogin" placeholder="{{Page.CreateUser.GitHubLogin}}" >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2" for="GitHubPassword">
+                        {{Page.CreateUser.GitHubPassword}}
+                    </label>
+                    <div class="col-lg-5">
+                        <input type="text" id="GitHubPassword" class="form-control {{user.GitHubPassword|FilterRequiredInput:1}}" ng-model="user.GitHubPassword" placeholder="{{Page.CreateUser.GitHubPassword}}" >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-lg-2" >
+
+                    </label>
+                    <div class="col-lg-5">
+                        <button class="btn btn-success {{}}" type="submit" ng-show="ViewButton">{{Page.CreateUser.ButtonSuccess}}</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

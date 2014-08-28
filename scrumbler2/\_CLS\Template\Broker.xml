@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Broker">
+<Super>%CSP.REST</Super>
+<TimeCreated>63260,44454.341816</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+<!-- Settings -->	
+		<Route Url="/GetNameSpaceList/"						Method="GET" 	Call="Template.JSON:GetNameSpaceList"/>
+		<Route Url="/GetCassList/:NameSpace"				Method="GET" 	Call="Template.JSON:GetClassList"/>
+		<Route Url="/GetTemplates/"							Method="GET" 	Call="Template.JSON:GetTemplates"/>
+		<Route Url="/GetTemplate/:ID"						Method="GET" 	Call="Template.JSON:GetTemplate"/>
+		
+		<Route Url="/CreateTemplate/"						Method="POST" 	Call="Template.JSON:CreateTemplate"/>
+		<Route Url="/UpdateTemplate/"						Method="POST" 	Call="Template.JSON:UpdateTemplate"/>
+		
+<!-- Rules -->
+		<Route Url="/GetRules/"							Method="GET" 	Call="Template.JSON:GetRules"/>
+		<Route Url="/GetRulesSelect/:Query"				Method="GET" 	Call="Template.JSON:GetRulesSelect"/>
+		<Route Url="/GetRule/:ID"						Method="GET" 	Call="Template.JSON:GetRule"/>
+		<Route Url="/CreateRule/"						Method="POST" 	Call="Template.JSON:CreateRule"/>
+		<Route Url="/UpdateRule/"						Method="POST" 	Call="Template.JSON:UpdateRule"/>
+</Routes>
+]]></Data>
+</XData>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.BrokerD</DataLocation>
+<DefaultData>BrokerDefaultData</DefaultData>
+<IdLocation>^Template.BrokerD</IdLocation>
+<IndexLocation>^Template.BrokerI</IndexLocation>
+<StreamLocation>^Template.BrokerS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="BrokerDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

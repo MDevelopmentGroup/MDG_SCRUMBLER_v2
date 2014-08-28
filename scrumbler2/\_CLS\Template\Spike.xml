@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Spike">
+<TimeCreated>63406,37652.223916</TimeCreated>
+
+<Parameter name="%DefaultNameSpace">
+<Default>%SYS</Default>
+</Parameter>
+
+<Method name="CreateCacheMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace,Package,location="C:\InterSystems\Cache\CSP"</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		#dim st as %Status=$$$OK
+		zn NameSpace
+		#dim WebApp As %String=""
+		#dim BootStrapDir As %String="C:\temp\bootstrap\"
+		#dim AngularDir As %String="C:\temp\angular\"
+		#dim ClassName,FullClassName,Property,XDATA,Controller,Factory,App,index,menu As %String=""
+		s Factory="angular.module('FactoryModule',[])"
+		s App="angular.module('"_Package_"',['ngCookies','ngResource','ngRoute','ngSanitize','ngAnimate','FactoryModule'"_
+		"]).config(['$routeProvider',  function($routeProvider) { $routeProvider."
+		s menu="<ul class='nav nav-pills nav-stacked'>"
+		#dim ClassList As %ArrayOfDataTypes
+		s ClassList=##class(Template.Util).%SubClassList(NameSpace,Package),XDATA=$C(9)_"<Routes>"_$C(10)
+		s temp=##class(%Stream.TmpCharacter).%New()
+		f i=0:1:ClassList.Count()-1 {
+			s FullClassName=ClassList.GetAt(i)
+			s ClassName=$P(ClassList.GetAt(i),".",2)
+			s TempCreate=$C(9)_"set st=$$$OK"_$C(10)_$C(9)_"try{"_$C(10)_
+ 					$C(9)_"$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))"_$C(10)_
+ 					$C(9)_"set "_ClassName_"=##class("_FullClassName_").%New()"_$C(10)
+ 					s PropertyList=##class(%ClassDefinition).%OpenId(FullClassName), key=""
+    					d PropertyList.Properties.GetNext(.key)
+    					while key'="" 
+    					{s Property=PropertyList.Properties.GetAt(key).Name
+ 						 s TempCreate=TempCreate_$C(9)_"set "_ClassName_"."_Property_"=$ZCONVERT(obj."_Property_",""I"",""UTF8"")"_$C(10)}
+ 					s TempCreate=TempCreate_$C(9)_"$$$THROWONERROR(st,"_ClassName_".%Save())"_$C(10)_$C(9)_"} catch ex{set st=ex.AsStatus()}"_$C(10)_$C(9)_"quit st"
+ 			s st=temp.Write(TempCreate),TempCreate=""
+ 			s st=##class(Template.Class).%CreateMethod(NameSpace,FullClassName,"Create","","%Status",temp,"Create "_FullClassName), st=temp.Clear()
+ 			s TempUpdate=$C(9)_"set st=$$$OK"_$C(10)_$C(9)_"try{"_$C(10)_
+ 					$C(9)_"$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))"_$C(10)_
+ 					$C(9)_"set "_ClassName_"=##class("_FullClassName_").%OpenId(obj.ID)"_$C(10)
+ 					 	s PropertyList=##class(%ClassDefinition).%OpenId(FullClassName),key=""
+    					d PropertyList.Properties.GetNext(.key)
+    					while key'="" 
+    					{s Property=PropertyList.Properties.GetAt(key).Name
+ 						 s TempCreate=TempCreate_$C(9)_"set "_ClassName_"."_Property_"=$ZCONVERT(obj."_Property_",""I"",""UTF8"")"_$C(10)}
+ 			 		s TempCreate=TempCreate_$C(9)_"$$$THROWONERROR(st,"_ClassName_".%Save())"_$C(10)_$C(9)_"} catch ex{set st=ex.AsStatus()}"_$C(10)_$C(9)_"quit st"
+ 			s st=temp.Write(TempUpdate),TempUpdate=""
+ 			s st=##class(Template.Class).%CreateMethod(NameSpace,FullClassName,"Update","","%Status",temp,"Update "_FullClassName), st=temp.Clear()
+ 			s TempGet=$C(9)_"set sql=""select * from "_FullClassName_"  where ID=""_ID"_$C(10)_$C(9)_"do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)"_$C(10)_$C(9)_"Q $$$OK"
+ 			s st=temp.Write(TempGet),TempGet=""
+ 			s st=##class(Template.Class).%CreateMethod(NameSpace,FullClassName,"Get","ID","%Status",temp,"Get "_FullClassName), st=temp.Clear()
+ 			s TempGetAll=$C(9)_"set sql=""select * from "_FullClassName_""_$C(10)_$C(9)_"do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)"_$C(10)_$C(9)_"Q $$$OK"
+ 			s st=temp.Write(TempGetAll),TempGetAll=""
+ 			s st=##class(Template.Class).%CreateMethod(NameSpace,FullClassName,"GetAll","","%Status",temp,"GetAll "_FullClassName), st=temp.Clear()
+			s XDATA=XDATA_$C(9)_$C(9)_"<Route Url=""/"_ClassName_"/Create"" Method=""POST"" 	Call="""_FullClassName_":Create""/>"_$C(10)_
+			$C(9)_$C(9)_"<Route Url=""/"_ClassName_"/Update"" Method=""POST"" 	Call="""_FullClassName_":Update""/>"_$C(10)_
+			$C(9)_$C(9)_"<Route Url=""/"_ClassName_"/GetAll"" Method=""GET"" 	Call="""_FullClassName_":GetAll""/>"_$C(10)_
+			$C(9)_$C(9)_"<Route Url=""/"_ClassName_"/Get/:ID"" Method=""GET"" 	Call="""_FullClassName_":Get""/>"_$C(10)
+			d ##class(Template.Class).%Compile(NameSpace,FullClassName)
+			s Factory=Factory_".factory('"_ClassName_"Factory',['$http',function($http){"_"return {"_
+            "Create:function(data)   {return $http.post('/"_WebApp_"/"_ClassName_"/Create',data);},"_
+            "Update:function(data)   {return $http.post('/"_WebApp_"/"_ClassName_"/Update',data);},"_
+            "Delete:function(ID)   {return $http.delete('/"_WebApp_"/"_ClassName_"/Delete/'+ID);},"_
+            "Get:function(ID)      {return $http.get('/"_WebApp_"/"_ClassName_"/Get/'+ID);},"_
+            "GetAll:function()      {return $http.get('/"_WebApp_"/"_ClassName_"/GetAll');}"_
+            "}}])"
+            s Controller=Controller_" function View"_ClassName_"Ctrl($rootScope,$scope,$routeParams,"_ClassName_"Factory){"_
+    		"$scope.Get"_ClassName_"=function(){"_
+            ""_ClassName_"Factory.GetAll().success(function(data){"_"$scope."_ClassName_"=data.children;"_"});}; "_
+			"$scope.Get"_ClassName_"();"_
+			"$scope.Delete=function(ID){"_ClassName_"Factory.Delete(ID).success(function(){$scope.Get"_ClassName_"();})};"_
+			"} "_
+			" function Create"_ClassName_"Ctrl($rootScope,$scope,$routeParams,"_ClassName_"Factory){"_
+			"$scope.Submit=function(data){ "_ClassName_"Factory.Create(data).success(function(){location.href="";}); }"_
+			"} "_
+			" function Update"_ClassName_"Ctrl($rootScope,$scope,$routeParams,"_ClassName_"Factory){"_
+			"$scope.Submit=function(data){ "_ClassName_"Factory.Create(data).success(function(){location.href="";}); };"_
+			"$scope.Get=function(){"_
+			""_ClassName_"Factory.Get($routeParams.ID).success(function(data){"_"$scope."_ClassName_"=data.children;"_"});"_
+			"}"_"$scope.Get();"_
+			"} "
+			s App=App_"when('/"_ClassName_"',{templateUrl: 'partials/View"_ClassName_".html', controller: View"_ClassName_"Ctrl})."
+			_"when('/Create"_ClassName_"',{templateUrl: 'partials/View"_ClassName_".html', controller: Create"_ClassName_"Ctrl})."
+			_"when('/Update"_ClassName_"/:ID',{templateUrl: 'partials/View"_ClassName_".html', controller: Update"_ClassName_"Ctrl})."
+			s menu=menu_"<li><a href='#/"_ClassName_"'>"_ClassName_"</a></li>"
+			}
+		s App=App_"otherwise({redirectTo: '/"_ClassName_"'});}]);"
+		s menu=menu_"</ul>"
+		s XDATA=XDATA_$C(9)_"</Routes>",st=##class(Template.Class).%CreateClass(NameSpace,"WEB.Broker","%CSP.REST")
+		s st= ##class(Template.Class).%Compile(NameSpace,"WEB.Broker"),st=temp.Write(XDATA), XDATA=""
+		s XD=##class(%Dictionary.XDataDefinition).%New("WEB.Broker"),XD.Name="UrlMap", st=XD.Data.CopyFromAndSave(temp)
+		s st= ##class(Template.Class).%Compile(NameSpace,"WEB.Broker"),st=temp.Clear()
+		s File=##class(%File).%New()
+		s st=File.CreateDirectory(location_"\"_$ZCONVERT(Package,"L")_"\"),st=File.%Save()
+		s st=File.CreateDirectory(location_"\"_$ZCONVERT(Package,"L")_"\js\"),st=File.%Save()
+		s st=File.Write(Controller),File.Name=location_"\"_$ZCONVERT(Package,"L")_"\js\controller.js",st=File.%Save(),st=File.Clear()
+		s st=File.Write(Factory),File.Name=location_"\"_$ZCONVERT(Package,"L")_"\js\factory.js",st=File.%Save(),st=File.Clear()
+		s st=File.CreateDirectory(location_"\"_$ZCONVERT(Package,"L")_"\partials\"),st=File.%Save()
+		s st=File.Write(menu),File.Name=location_"\"_$ZCONVERT(Package,"L")_"\js\menu.html",st=File.%Save(),st=File.Clear()
+		s st=File.CreateDirectory(location_"\"_$ZCONVERT(Package,"L")_"\css\"),st=File.%Save()
+		s st=File.CreateDirectory(location_"\"_$ZCONVERT(Package,"L")_"\lib\"),st=File.%Save()
+		s st=File.CopyDir(BootStrapDir,location_"\"_$ZCONVERT(Package,"L")_"\css\"),st=File.%Save()
+		s st=File.CopyDir(AngularDir,location_"\"_$ZCONVERT(Package,"L")_"\lib\"),st=File.%Save()
+		
+		
+		
+		
+		
+		zn ..#%DefaultNameSpace
+		Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

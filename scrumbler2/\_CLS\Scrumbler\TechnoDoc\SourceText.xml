@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.TechnoDoc.SourceText">
+<Description>
+Тут будит жить все исходники</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63392,67763.690081</TimeCreated>
+
+<Property name="TechnoDoc">
+<Type>Scrumbler.TechnoDoc</Type>
+<Cardinality>one</Cardinality>
+<Inverse>SourceTexts</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TechnoDocIndex">
+<Properties>TechnoDoc</Properties>
+</Index>
+
+<Property name="Body">
+<Description>
+Исходный текст</Description>
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="10000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Language">
+<Description>
+Язык</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="Title">
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="2000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Description">
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="2000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Query name="GetSourceTextsByTechnoDoсID">
+<Type>%SQLQuery</Type>
+<FormalSpec>ID:%String</FormalSpec>
+<SqlQuery>SELECT %ID,"Language",Body,Title,Description FROM SourceText
+ WHERE (TechnoDoc = :ID)
+ ORDER BY %ID</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TechnBC80.SourceTextD</DataLocation>
+<DefaultData>SourceTextDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TechnBC80.SourceTextD</IdLocation>
+<IndexLocation>^Scrumbler.TechnBC80.SourceTextI</IndexLocation>
+<StreamLocation>^Scrumbler.TechnBC80.SourceTextS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SourceTextDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>TechnoDoc</Value>
+</Value>
+<Value name="3">
+<Value>Body</Value>
+</Value>
+<Value name="4">
+<Value>Language</Value>
+</Value>
+<Value name="5">
+<Value>Company</Value>
+</Value>
+<Value name="6">
+<Value>Author</Value>
+</Value>
+<Value name="7">
+<Value>Title</Value>
+</Value>
+<Value name="8">
+<Value>Description</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

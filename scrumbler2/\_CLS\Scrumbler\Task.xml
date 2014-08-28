@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Task">
+<Description>
+Задачи проекта</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63354,68986.945663</TimeCreated>
+
+<Property name="SSN">
+<Description>
+Составной ключ, (-Вычисляемое-)</Description>
+<Type>%Text</Type>
+<Internal>1</Internal>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {SSN}=##class(Scrumbler.Logic.Task).SSN({MasterTask})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+<Parameter name="MAXLEN" value="100000"/>
+</Property>
+
+<Property name="LastElement">
+<Description>
+Свойство конечности ветки (1 - нет потомков, 0 - есть)</Description>
+<Type>%Boolean</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {LastElement}=##class(Scrumbler.Logic.Task).LastElement({%%ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="EstimatedCostProj">
+<Description>
+Оценочная стоимость ветки</Description>
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {EstimatedCostProj}=##class(Scrumbler.Logic.Task).EstimatedCostProj({%%ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="Dependence">
+<Description>
+Зависимость одной задачи от другой</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isHited">
+<Description>
+Выполнена ли задача (По умолчанию - нет)</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="TaskWeight">
+<Description>
+Вес Задачи</Description>
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Name">
+<Description>
+Название Задачи</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана задача</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="TotalTime">
+<Description>
+Времени на проект</Description>
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {TotalTime}=##class(Scrumbler.Logic.Task).TotalTime({%%ID})
+</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="TimeStampBegin">
+<Description>
+Время начала</Description>
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="TimeStampEnd">
+<Description>
+Время окончания</Description>
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="isOpenSource">
+<Description>
+Открытость ветки/задачи</Description>
+<Type>%String</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="TotalTasks">
+<Description>
+Число крайних веток (если они есть)</Description>
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {TotalTasks}=##class(Scrumbler.Logic.Task).TotalTasks({%%ID})
+</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="TotalIsHitTasks">
+<Description>
+Число выполненых задач</Description>
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {TotalIsHitTasks}=##class(Scrumbler.Logic.Task).TotalIsHitTasks({%%ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="IsNotHitTasks">
+<Description>
+Число не выполненых задач ???CTP к чему это относится</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="GitHubLink">
+<Description>
+Ссылка на репозиторий в гитхабе для подключения API</Description>
+<Type>%String</Type>
+</Property>
+
+<Property name="IsMissingHitTasks">
+<Description>
+Число задач ушедших в "молоко" ???CTP МОЖЕТ БУЛЕВОЕ</Description>
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {IsMissingHitTasks}=##class(Scrumbler.Logic.Task).IsMissingHitTasks({%%ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="MasterTask">
+<Description>
+Потомок</Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tasks</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Tasks">
+<Description>
+Родитель</Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>many</Cardinality>
+<Inverse>MasterTask</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>MasterTask</Properties>
+</Index>
+
+<Property name="UserInitiator">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>UserTasksInitiator</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="UserInitiatorIndex">
+<Properties>UserInitiator</Properties>
+</Index>
+
+<Property name="UserShooter">
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>UserTasksShooter</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="UserShooterIndex">
+<Properties>UserShooter</Properties>
+</Index>
+
+<Property name="Comments">
+<Type>Scrumbler.Comment</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Laps">
+<Type>Scrumbler.Lap</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="EndLevelList">
+<Description>
+Свойство содержит список крайних задач</Description>
+<Type>%String</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {EndLevelList}=##class(Scrumbler.Logic.Task).EndLevelList({%%ID})
+</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="ScrumblerGroup">
+<Description>
+CTP ДЛЯ ЧЕГО ???</Description>
+<Type>Scrumbler.ScrumblerGroup</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Tasks</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ScrumblerGroupIndex">
+<Properties>ScrumblerGroup</Properties>
+</Index>
+
+<Property name="Tags">
+<Description>
+Список скилов </Description>
+<Type>Scrumbler.Tag</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Targets">
+<Type>Scrumbler.Target</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Settings">
+<Type>Scrumbler.Settings.Task</Type>
+</Property>
+
+<Property name="Image">
+<Description>
+картинка для проекта</Description>
+<Type>FileBase.Image</Type>
+<Cardinality>one</Cardinality>
+<Inverse>TaskImages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ImageIndex">
+<Properties>Image</Properties>
+</Index>
+
+<Property name="Events">
+<Type>Scrumbler.ScrumblerEvent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Method name="%OnDelete">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>oid:%ObjectIdentity</FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	set task=##class(Scrumbler.Task).%Open(oid)
+	set key=""
+	
+	//if (task.Tasks'=""){
+	//	while task.Tasks.GetNext(.key)
+	//	{w ##class(Scrumbler.Task).%DeleteId(key),!}
+	//	}
+	
+	set SSN=""
+	if (task.SSN'=""){set SSN=task.SSN_"|"_task.%Id()}
+	else{set SSN=task.%Id()}
+	w SSN,!
+	//&sql(delete  from Scrumbler.Task where SSN=:SSN and LastElement=1)
+	//&sql(delete  from Scrumbler.Task where SSN like :SSN_'%' and LastElement=1) 
+	
+   Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Property name="Rating">
+<Description>
+Рейтинг выполнения задачи</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="Company">
+<Description>
+Принадлежность компании</Description>
+<Type>Scrumbler.Company</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="ListIDOfTree">
+<Type>%String</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {ListIDOfTree}=##class(Scrumbler.Logic.Task).ListIDOfTree({%%ID})
+</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="Release">
+<Description>
+Релиз (задачи относящиеся к данной версии проекта)</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Index name="ReleaseIndex">
+<Properties>Release</Properties>
+</Index>
+
+<Property name="ReleasesList">
+<Description>
+Свойство для узловых элементов участвующих в релизе</Description>
+<Type>%String</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode>set {ReleasesList}=##class(Scrumbler.Logic.Task).ReleasesList({%%ID})
+</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="IsDelete">
+<Description>
+Задачи не удаляем, а лишь скрываем=)))</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="TechoDocs">
+<Description>
+документирующие Инициирующий и завершающий</Description>
+<Type>Scrumbler.TechnoDoc</Type>
+<Cardinality>many</Cardinality>
+<Inverse>Task</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TaskD</DataLocation>
+<DefaultData>TaskDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TaskD</IdLocation>
+<IndexLocation>^Scrumbler.TaskI</IndexLocation>
+<StreamLocation>^Scrumbler.TaskS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TaskDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>MasterTask</Value>
+</Value>
+<Value name="3">
+<Value>Dependence</Value>
+</Value>
+<Value name="4">
+<Value>IsHited</Value>
+</Value>
+<Value name="5">
+<Value>TaskWeight</Value>
+</Value>
+<Value name="6">
+<Value>Name</Value>
+</Value>
+<Value name="7">
+<Value>TimeStampBegin</Value>
+</Value>
+<Value name="8">
+<Value>TimeStampEnd</Value>
+</Value>
+<Value name="9">
+<Value>isOpenSource</Value>
+</Value>
+<Value name="10">
+<Value>TotalIsHitTasks</Value>
+</Value>
+<Value name="11">
+<Value>IsNotHitTasks</Value>
+</Value>
+<Value name="12">
+<Value>IsMissingHitTasks</Value>
+</Value>
+<Value name="13">
+<Value>UserInitiator</Value>
+</Value>
+<Value name="14">
+<Value>UserShooter</Value>
+</Value>
+<Value name="15">
+<Value>CreateTask</Value>
+</Value>
+<Value name="16">
+<Value>isHited</Value>
+</Value>
+<Value name="17">
+<Value>ScrumblerGroup</Value>
+</Value>
+<Value name="18">
+<Value>CreationTime</Value>
+</Value>
+<Value name="19">
+<Value>Settings</Value>
+</Value>
+<Value name="20">
+<Value>Image</Value>
+</Value>
+<Value name="21">
+<Value>RatingTasks</Value>
+</Value>
+<Value name="22">
+<Value>Company</Value>
+</Value>
+<Value name="23">
+<Value>ListIDOfTree</Value>
+</Value>
+<Value name="24">
+<Value>Release</Value>
+</Value>
+<Value name="25">
+<Value>ReleasesList</Value>
+</Value>
+<Value name="26">
+<Value>GitHubLink</Value>
+</Value>
+<Value name="27">
+<Value>IsDelete</Value>
+</Value>
+<Value name="28">
+<Value>Rating</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Util">
+<Super>%RegisteredObject</Super>
+<TimeCreated>63357,60967.1112</TimeCreated>
+
+<Method name="AccessIsDenied">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	ret "{""status"":""Access is denied or element does not exist"",""success"":false}"
+]]></Implementation>
+</Method>
+</Class>
+</Export>

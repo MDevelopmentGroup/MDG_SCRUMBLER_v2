@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Room">
+<Description>
+Класс-метода относящиеся к личному кабинету</Description>
+<TimeCreated>63371,36626.753553</TimeCreated>
+
+<Method name="GetActiveTasks">
+<Description>
+Получить актианые задачи</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    Try{
+        set user=##class(WEB.Auth).GetCurrentUser()
+        if (user'=""){
+            
+            set SQL =
+            "SELECT ID, ScrumblerGroup, UserInitiator->FirstName,UserInitiator->LastName, UserInitiator->Gravatar, Name FROM Scrumbler.Task "_
+            "WHERE LastElement=1 and UserShooter="_user_" and isHited=0 and ID not in "_
+            "(SELECT Task->ID FROM Scrumbler.Lap WHERE UserShooter="_user_" and TimeStampBegin !='' and TimeStampEnd is NULL and isHited=0)"
+            do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+        }       
+    }
+    Catch ex{ set st=ex.AsStatus()} 
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetTasksInTheWork">
+<Description>
+Задачи в работе</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    Try{
+        set user=##class(WEB.Auth).GetCurrentUser()
+        if (user'=""){
+            
+            set SQL =" "_
+            "SELECT distinct by (Task->ID) Id as Lap ,Task->ID, Task->ScrumblerGroup,Task->Name, Task->UserInitiator->FirstName, Task->UserInitiator->LastName, Task-> UserInitiator->Gravatar "_
+            " "_
+            "FROM Scrumbler.Lap "_
+            "WHERE (UserShooter="_user_" AND isHited =0) AND TimeStampEnd is null"
+            do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+        }       
+    }
+    Catch ex{ set st=ex.AsStatus()} 
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetAFailedTasks">
+<Description>
+Проваленные задачи!!!</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    Try{
+        set user=##class(WEB.Auth).GetCurrentUser()
+        if (user'=""){
+
+            set SQL="select  Task->ID, Task->ScrumblerGroup,Task->Name, Task->UserInitiator->FirstName, Task->UserInitiator->LastName, Task-> UserInitiator->Gravatar, "_
+                    "count(Task->Name) As Tcount "_
+            " from Scrumbler.Lap where UserShooter="_user_" and isHited=0 and TimeStampBegin!='' and TimeStampEnd!='' "_
+            "Group By Task->Name"
+            do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+        }       
+    }
+    Catch ex{ set st=ex.AsStatus()} 
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetCompletedTasks">
+<Description>
+Выполненные задачи!!!</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    Try{
+        set user=##class(WEB.Auth).GetCurrentUser()
+        if (user'=""){
+            #dim SQL As %String="select distinct by(Task->ID) Task->Name, Task->ScrumblerGroup, Task->ID, Task->UserInitiator->FirstName, Task->UserInitiator->LastName, Task->UserInitiator->Gravatar from Scrumbler.Lap where UserShooter="_user_" and isHited=1 order by Task->ID"
+            do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+        }       
+    }
+    Catch ex{ set st=ex.AsStatus()} 
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="CancelTask">
+<Description>
+Отказаться от задачи</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st as %Status=$$$OK
+    If (##class(Scrumbler.Task).%ExistsId(ID))
+    {
+        set task=##class(Scrumbler.Task).%OpenId(ID)
+        set task.UserShooter=""
+        set st=task.%Save()
+        set lap=##class(Scrumbler.Lap).%New()
+        set lap.isHited=0
+        set lap.Task=task
+        set lap.UserShooter=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+        set lap.TimeStampBegin=$zdt($h,3)
+        set lap.TimeStampEnd=$zdt($h,3)
+        set st=lap.%Save()
+        // 12- Пользователь отказался от задачи
+        set st=##class(Scrumbler.Logic.Event).Create(task,,task.ScrumblerGroup,12)  
+    }
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="StartTask">
+<Description>
+Принятие задачи на круг</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    &sql(select count(Task) into :count from Scrumbler.Lap where (TimeStampBegin<>"" and IsHited=0) and TimeStampEnd  is null and Task->id=:ID)
+    if (count=0){
+
+	    if (##class(Scrumbler.Task).%ExistsId(ID))
+	    {
+	        set task=##class(Scrumbler.Task).%OpenId(ID)
+	        if (task.TimeStampBegin=""){set task.TimeStampBegin=$zdt($h,3),st=task.%Save()}	        
+	        set lap=##class(Scrumbler.Lap).%New()
+	        set lap.UserShooter=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	        set lap.Task=task
+	        set lap.TimeStampBegin=$zdt($h,3)
+	        set st=lap.%Save()
+	        set st=##class(Scrumbler.Logic.Event).Create(task,,task.ScrumblerGroup,3)
+	    }
+    }
+    else
+    {
+	    w "Задача не начата, поскольку была принята ранее."
+	    /// Можно прикруить уведомления
+    }
+    Q st
+]]></Implementation>
+</Method>
+
+<Method name="EndTask">
+<Description>
+Завершение задачи</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    #dim st As %Status=$$$OK
+    Try
+    {
+        $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))        
+        //проверка на дублированное завершение задачи 
+        &sql(select count(id) into :count from Scrumbler.Lap where id=:obj.Lap and TimeStampBegin is not null and TimeStampEnd is null)
+        if (count){
+	        set Task=obj.Task
+	        set User=##class(WEB.Auth).GetCurrentUser()
+	        set task=##class(Scrumbler.Task).%OpenId(Task)	        	        
+	        &sql(select ID into:ID from Scrumbler.Lap where UserShooter=:User and Task=:Task and TimeStampEnd='' and isHited=0 )
+	        	        
+	        set lap=##class(Scrumbler.Lap).%OpenId(ID)
+	        /*
+	        set comment=##class(Scrumbler.Comment).%New()
+	        set comment.ComentAuthor=##class(Scrumbler.ScrumblerUser).%OpenId(User)
+	        set comment.Task=task
+	        set comment.CommentType=obj.CommentType
+	        if (obj.CommentBody){set comment.CommentBody=$ZCONVERT(obj.CommentBody,"I","UTF8")}
+	        if (obj.SourceText'=""){set comment.SourceText=$ZCONVERT(obj.SourceText,"I","UTF8")}
+	        */
+	        set solved=""
+	        set st=##class(Scrumbler.Logic.TechnoDoc).Create(obj,task,1)
+	        if (obj.isHited=1){
+	            set lap.TimeStampEnd=$zdt($h,3)
+	            set lap.isHited=1
+	            set task.TimeStampEnd=$zdt($h,3)
+	            set task.isHited=1
+	            set task.Rating=obj.Rating
+	            // 4- Задача решена
+	            set solved="Выполнена"
+	            set st=##class(Scrumbler.Logic.Event).Create(task,,task.ScrumblerGroup,4)   
+	        }
+	        else{
+	            set lap.TimeStampEnd=$zdt($h,3)
+	            // 5- Задача не решена
+	            set solved="Провалена"
+	            set st=##class(Scrumbler.Logic.Event).Create(task,,task.ScrumblerGroup,5)
+	            }
+	        set st=lap.%Save()
+	        set st=task.%Save()
+	        do ##class(Util.Mail.SendMail).NewMail(task.%Id(),solved,"TaskClose","")
+	        //set st=comment.%Save()
+		}
+		else{ w !,"не завершена. Данный спринт считаетстя закрытым"
+			//можно прикрутить уведомление
+		}		
+    }
+    Catch ex{ set st=ex.AsStatus()}
+    Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

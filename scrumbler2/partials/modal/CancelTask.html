@@ -1,0 +1,23 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <form ng-model="form" class="form-horizontal" ng-submit="Login(form)">
+            <div class="modal-content">
+                <div class="modal-header" >
+                    <button type="button" class="close" ng-click="$hide()">&times;</button>
+                    <h4 class="modal-title" ng-bind-html="Page.Modal.CancelTask.Title"></h4>
+                </div>
+                <div class="modal-body" >
+                    {{Name}}
+
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="Ok();$hide()">{{Page.Modal.CancelTask.Ok}}</button>
+                    <button type="button" class="btn btn-default" ng-click="$hide()">{{Page.Modal.CancelTask.Cancel}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

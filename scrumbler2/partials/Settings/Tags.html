@@ -1,0 +1,5 @@
+
+{{Page.Settings.Tags.Alert}}
+<tags-input ng-model="tags" on-tag-added='AddTag($tag)' on-tag-removed="DeleteTag($tag)" min-length="1">
+    <auto-complete source="LoadTags($query)" min-length="1" debounce-delay="0"></auto-complete>
+</tags-input>

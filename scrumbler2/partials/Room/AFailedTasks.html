@@ -1,0 +1,91 @@
+<br>
+<div class="" ng-repeat="item in AFailedTasks | filter:SearchText | filter:FilterGroup | orderBy:FilterSelectColName:reverse">
+    <div class="{{item.TaskWeight | TasksWeightTypes}}">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-1" >
+                    <button class="btn btn-default btn-sm" ng-click="ViewSprint=!ViewSprint; GetCommentByTask(item.ID,ViewSprint);">
+                        <span class="{{ViewSprint | ViewTargetList}}"></span>
+                    </button>
+                </div>
+                <div class="col-lg-3">[#{{item.ID}}].
+                    {{item.Name}}
+                </div>
+
+                <div class="col-lg-2">
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <img class="img-rounded" style="max-width:25px " ng-src="{{item.Gravatar}}">
+                        </div>
+                        <div class="col-lg-9">
+                            <div class="row">
+                                <strong>{{Page.Tasks.Author}}:</strong>
+                            </div>
+                            <div class="row">
+                                {{item.FirstName}}
+                                {{item.LastName}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    {{item.Tcount}}
+                </div>
+                <div class="col-lg-5"></div>
+            </div>
+        </div>
+        <div class="panel-body" ng-show="ViewSprint">
+            <div class="row">
+                <div class="col-lg-4">
+
+
+                </div>
+                <div class="col-lg-3"></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <hr>
+                    <div class="" ng-repeat="comment in comments[item.ID]">
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <img style="max-height: 50px" class="img-thumbnail" ng-src="{{comment.Gravatar}}">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        {{comment.FirstName}}
+                                        {{comment.LastName}}
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="row">
+                                    <label class="label label-info">
+                                        {{Page.Comment.Types[comment.CommentType]}}
+                                    </label>
+                                </div>
+                                <div class="row" ng-bind-html="comment.CommentBody"></div>
+                                <div class="row">{{comment.CommentToURL}}</div>
+                            </div>
+                            <div class="col-lg-1" ng-show="{{comment.Edit}}">
+                                <button class="btn btn-default btn-sm" ng-click="UpdateComment(item,comment.ID)"><span class="glyphicon glyphicon-refresh"></span></button>
+                            </div>
+                        </div>
+
+                        <hr>
+                    </div>
+                    <button class="btn btn-default btn-sm" ng-click="CreateCommentForTask(item)">
+                        {{Page.Sprints.Comment}}
+                        <label class="label label-info">
+                            <span class="glyphicon glyphicon-plus">
+
+                            </span>
+                        </label>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

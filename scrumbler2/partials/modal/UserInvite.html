@@ -1,0 +1,30 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <form ng-model="form" class="form-horizontal" ng-submit="Submit(user)">
+            <div class="modal-content">
+                <div class="modal-header" >
+                    <button type="button" class="close" ng-click="$hide()">&times;</button>
+                    <h4 class="modal-title" ng-bind-html="Page.Modal.UserInvite.Title"></h4>
+                </div>
+                <div class="modal-body" >
+
+                        <div class="form-group">
+                            <label class="control-label col-lg-2">{{Page.Modal.UserInvite.Email}}</label>
+                            <div class="col-lg-8">
+                                <input type="email" class="form-control" ng-model="user.Email" placeholder="{{Page.Modal.UserInvite.Email}}" required="">
+                            </div>
+                        </div>
+
+
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default" >{{Page.Modal.Login.Ok}}</button>
+                    <button type="button" class="btn btn-default" ng-click="$hide()">{{Page.Modal.Login.Cancel}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

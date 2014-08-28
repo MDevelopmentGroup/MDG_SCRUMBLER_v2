@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.Search">
+<TimeCreated>63372,45468.43565</TimeCreated>
+
+<Method name="SearchText">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>text:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try{
+						  		  
+			set SQL1 ="select ID, Name, 				'Task'    As Type    from	Scrumbler.Task	where Name like '%"_text_"%'" 		  
+			set SQL2 ="select ID, CommentBody as Name,  'Comment' As Type from	Scrumbler.Comment where CommentBody like '%"_text_"%'" 
+			w "["			  		  						  
+			do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL1)
+			w ","
+			do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL2)
+			w "]"
+	}
+	Catch ex{ set st=ex.AsStatus()}
+		
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

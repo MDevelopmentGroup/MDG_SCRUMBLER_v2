@@ -1,0 +1,90 @@
+            <div class="panel-body" ng-if="ViewTargets">
+                <ol ng-repeat="TechnoDoc in task.TechnoDocs">
+
+                    <li  ng-repeat="target in TechnoDoc.Targets" >
+                        <div ng-bind-html="target.Target" ng-hide="target.Type" ></div>
+
+                        <ul ng-show="target.Type">
+                            <li>
+                                <div ng-bind-html="target.Target"></div>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+
+        <div class="panel panel-default" ng-init="ViewSources=1;">
+            <div class="panel-heading">
+                <button class="btn btn-default btn-sm" ng-click="ViewSources=!ViewSources; ">
+                    <span class="{{ViewSources | ViewTargetList}}"></span>
+                </button>
+                <strong>
+                    Resources
+                </strong>
+            </div>
+            <div class="panel-body" ng-if="ViewSources">
+                <ul ng-repeat="TechnoDoc in task.TechnoDocs">
+                    <li ng-repeat="source in TechnoDoc.Sources">
+                        <a target="_blank" href="{{source.URL}}">
+                            <div ng-bind-html="source.Title"></div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div ng-repeat="TechnoDoc in task.TechnoDocs">
+            <div ng-repeat="SourceText in TechnoDoc.SourceTexts" ng-init="ViewSourceText=1;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <button class="btn btn-default btn-sm" ng-click="ViewSourceText=!ViewSourceText; ">
+                            <span class="{{ViewSourceText | ViewTargetList}}"></span>
+                        </button>
+                        <strong>
+                            SourceText - {{SourceText.Title}}
+                        </strong>
+                    </div>
+                    <div class="panel-body" ng-if="ViewSourceText">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div ng-bind-html="SourceText.Description"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div ui-ace="{  useWrapMode : true,
+                                         showGutter: false,
+                                         theme:'twilight',
+                                         mode: SourceText.Language,
+                                        onLoad: aceLoaded}" readonly="true" ng-model="SourceText.Body"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class="row">
+        <br>
+        <div class="" ng-repeat="comment in task.Comments">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <img style="max-height: 50px" class="img-thumbnail" ng-src="{{comment.Gravatar}}">
+                        </div>
+                        <div class="col-lg-6">
+                            {{comment.FirstName}}
+                            {{comment.SecondName}}
+                        </div>
+                    </div>
+
+                </div>

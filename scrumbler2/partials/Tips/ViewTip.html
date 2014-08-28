@@ -1,0 +1,21 @@
+<div class="modal " tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form ng-model="tip" class="form-horizontal">
+                <div class="modal-header" >
+                    <button type="button" class="close" ng-click="$hide()">&times;</button>
+                    <h4 class="modal-title">Day Tip: {{tip.Name}}</h4>
+                </div>
+                <div class="modal-body" >
+                    <div class="row">
+                        <div class="col-lg-12" ng-bind-html="tip.Body"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="$hide()"> Close</button>
+                    <button type="button" class="btn btn-primary" ng-click="GetNext()"> Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

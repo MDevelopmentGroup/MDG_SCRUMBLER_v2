@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Class">
+<Super>%Persistent</Super>
+<TimeCreated>63264,57137.71731</TimeCreated>
+
+<Parameter name="%DefaultNameSpace">
+<Default>%SYS</Default>
+</Parameter>
+
+<Method name="%Compile">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace,ClassName</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//zn NameSpace
+	set status=$system.OBJ.Compile(ClassName)
+	//zn ..#%DefaultNameSpace
+	Q status
+]]></Implementation>
+</Method>
+
+<Method name="%CreateClass">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace:%String,ClassName:%String,Extends:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//zn NameSpace
+	set status=$$$OK
+	//If ('..%CheckClass(ClassName)){
+		set class=##class(%Dictionary.ClassDefinition).%New()
+		set class.Name=ClassName
+		set class.Super=Extends
+		set status=class.%Save()
+		
+	//}
+	//Else{
+	//	set status=ClassName_" class has already been created"
+	//	}
+	//zn ..#%DefaultNameSpace
+	Q status
+]]></Implementation>
+</Method>
+
+<Method name="%CheckClass">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace,ClassName:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	zn NameSpace
+	set status=$$$OK
+	set status=##class(%Dictionary.ClassDefinition).%Exists(ClassName)
+	zn ..#%DefaultNameSpace
+	Quit status
+]]></Implementation>
+</Method>
+
+<Method name="%CreateMethod">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace,ClassName,MethodName,InputList,ReturnType,Code,Description</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//zn NameSpace
+	set status=$$$OK
+	//If (..%CheckClass(ClassName)){
+	//	If ('..%CheckMethod(NameSpace,ClassName,MethodName)){
+			set method=##class(%Dictionary.MethodDefinition).%New(ClassName)
+			set method.ClassMethod=1
+			set method.Name=MethodName
+			set method.FormalSpec=InputList
+			set method.Implementation=Code
+			set method.ReturnType=ReturnType
+			set method.Description=Description
+			set status=method.%Save()
+		//	}
+		//Else{
+		//		set status=MethodName_" Method has already been created"
+		//	}
+		//}
+	//Else{
+	//	set status=ClassName_" Class does not exist"
+	//	}
+	//zn ..#%DefaultNameSpace	
+
+	Quit status
+]]></Implementation>
+</Method>
+
+<Method name="%CheckMethod">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace,ClassName,MethodName</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	zn NameSpace
+	set method=##class(%Dictionary.MethodDefinition).%New(ClassName)
+	set status=$$$OK
+	set status=method.%Exists(MethodName)
+	zn ..#%DefaultNameSpace
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.ClassD</DataLocation>
+<DefaultData>ClassDefaultData</DefaultData>
+<IdLocation>^Template.ClassD</IdLocation>
+<IndexLocation>^Template.ClassI</IndexLocation>
+<StreamLocation>^Template.ClassS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ClassDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

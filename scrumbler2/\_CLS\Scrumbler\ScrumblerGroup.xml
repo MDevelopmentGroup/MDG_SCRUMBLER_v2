@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.ScrumblerGroup">
+<Super>%Persistent</Super>
+<TimeCreated>63357,39553.280854</TimeCreated>
+
+<Property name="ScrumblerUserGroups">
+<Description>
+Перечисление пользователей в группах</Description>
+<Type>Scrumbler.ScrumblerUserGroup</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ScrumblerGroup</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Description">
+<Description>
+Описание группы</Description>
+<Type>%Text</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="100000"/>
+</Property>
+
+<Property name="isOpen">
+<Description>
+Открытая / закрытая группа</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="Tasks">
+<Type>Scrumbler.Task</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ScrumblerGroup</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Property name="Company">
+<Description>
+Компания</Description>
+<Type>Scrumbler.Company</Type>
+<Cardinality>one</Cardinality>
+<Inverse>ScrumblerGroups</Inverse>
+<Relationship>1</Relationship>
+<Required>1</Required>
+</Property>
+
+<Index name="CompanyIndex">
+<Properties>Company</Properties>
+</Index>
+
+<Property name="Image">
+<Type>FileBase.Image</Type>
+<Cardinality>one</Cardinality>
+<Inverse>GroupImages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ImageIndex">
+<Properties>Image</Properties>
+</Index>
+
+<Property name="Events">
+<Type>Scrumbler.ScrumblerEvent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>ScrumblerGroup</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Name">
+<Description>
+Название группы</Description>
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="Author">
+<Description>
+ автор/админ группы</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Property name="GroupGravatar">
+<Description>
+Временный затык!!!! TODO</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+</Property>
+
+<Property name="ShortDescription">
+<Description>
+Краткое описание</Description>
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="10000"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.ScrumblerGroupD</DataLocation>
+<DefaultData>ScrumblerGroupDefaultData</DefaultData>
+<IdLocation>^Scrumbler.ScrumblerGroupD</IdLocation>
+<IndexLocation>^Scrumbler.ScrumblerGroupI</IndexLocation>
+<StreamLocation>^Scrumbler.ScrumblerGroupS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ScrumblerGroupDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Description</Value>
+</Value>
+<Value name="3">
+<Value>isOpen</Value>
+</Value>
+<Value name="4">
+<Value>CreationTime</Value>
+</Value>
+<Value name="5">
+<Value>Company</Value>
+</Value>
+<Value name="6">
+<Value>Image</Value>
+</Value>
+<Value name="7">
+<Value>Name</Value>
+</Value>
+<Value name="8">
+<Value>Author</Value>
+</Value>
+<Value name="9">
+<Value>GroupGravatar</Value>
+</Value>
+<Value name="10">
+<Value>ShortDescription</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Test">
+<Abstract>1</Abstract>
+<TimeCreated>63259,76123.975288</TimeCreated>
+
+<Method name="MyMethod12">
+<Description>
+araser</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>t:%String,rt:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ 	set a=1
+ 	w a
+ 	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="T">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//Set str="Util"
+	Set str="VACANCY"
+	zn "MDG-VACANCY"
+
+    s ClassList=##class(%ResultSet).%New("%ClassDefinition:ClassInfo")
+    
+ 	d ClassList.Execute()
+ 	//zw ClassList
+ 	set temp=""
+ 	set ListOfClass = ##class(%Library.ArrayOfDataTypes).%New()
+ 	set ListOfProperties = ##class(%Library.ArrayOfDataTypes).%New()
+ 	set i=0
+   	while ClassList.Next() 
+ 	   {
+	 	   //WRITE $CLASSMETHOD("%Library.Persistent","%PackageName"),!
+ 			//WRITE $CLASSMETHOD("%Library.Persistent","%ClassName")
+ 			
+	 	   s clname=ClassList.Get("Name")
+	 	   
+	 	   if ($F(clname,"%")=0){
+		   		set temp=temp_clname
+		   		s def=##class(%ClassDefinition).%OpenId(clname)
+		    	s key=""
+      			d def.Properties.GetNext(.key)  
+      			while key'="" 
+         		{
+	         		do ListOfProperties.SetAt(clname,"Class")
+	         		do ListOfProperties.SetAt(def.Properties.GetAt(key).Name,key)
+	         		do ListOfProperties.SetAt(def.Properties.GetAt(key).Type,"Type")
+	         		do ListOfProperties.SetAt(def.Properties.GetAt(key).Collection,"Collection")
+	         		do ListOfProperties.SetAt(def.Properties.GetAt(key).Description,"Description")
+	         		
+	         		
+	         		
+	         		set temp=temp_ " ->>"_"  Name: "_ def.Properties.GetAt(key).Name_
+	                  "  Type: "_def.Properties.GetAt(key).Type_
+	                  "  Collection: "_def.Properties.GetAt(key).Collection_
+	                  "  Description: "_def.Properties.GetAt(key).Description_"\n"
+	         
+	        	d def.Properties.GetNext(.key)	
+	         	}
+	         	do ListOfClass.SetAt(ListOfProperties,i)
+				set i=i+1
+		 }
+
+ 	   }
+ 	d ClassList.%Close()
+ 	zn "%SYS"
+ 	w temp
+ 	///zw ListOfClass
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="M">
+<Description>
+//svsv</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+		
+
+       
+       set str=$CHAR(32,9)_"set a=1"_$CHAR(13,10)_
+       			$CHAR(32,9)_"w a"_$CHAR(13,10)_
+       			$CHAR(32,9)_"Quit $$$OK"
+       
+       
+       set Code=##class(%Stream.TmpCharacter).%New()
+       do Code.Write(str)
+       
+       
+       set name="Template.Test"
+
+		set methodName="MyMethod12"
+		
+		set m=##class(%Dictionary.MethodDefinition).%New(name)
+		set m.ClassMethod=1
+
+		set m.Description="araser"
+		set m.Name=methodName
+		set m.FormalSpec="t:%String,rt:%String"
+		set m.Implementation=Code
+		
+		set m.ReturnType="%String"
+		
+		 
+		Q m.%Save()
+]]></Implementation>
+</Method>
+
+<Method name="C">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+		set c=##class(%Dictionary.ClassDefinition).%New()
+		set c.Name="Template.YoHoHo"
+		Q c.%Save()
+]]></Implementation>
+</Method>
+
+<Method name="Com">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set class="Template.Test"
+
+	
+	Set rc=$system.OBJ.Compile(class)
+	q rc
+]]></Implementation>
+</Method>
+</Class>
+</Export>

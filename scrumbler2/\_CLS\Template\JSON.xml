@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.JSON">
+<Super>%Persistent,%Base,%RegisteredObject,%Net.HttpRequest</Super>
+<TimeCreated>63260,44468.719812</TimeCreated>
+
+<Method name="GetTemplates">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set Query =	"SELECT * "_
+					"FROM Template.Template "
+								   
+	do ..GetJSONData(Query)
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="CreateTemplate">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		set st=$$$OK
+   try{
+	   $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+       
+       	set template=##class(Template.Template).%New()      
+       	set template.Name=		$ZCONVERT(obj.Name,"I","UTF8")
+       	set template.Lang=	$ZCONVERT(obj.Lang,"I","UTF8")
+       	set template.Template=	$ZCONVERT(obj.Template,"I","UTF8")
+       	set template.Rule=##class(Template.Rule).%OpenId(obj.Rule)
+        
+    	for i=1:1:obj.Template.Size{
+	    	set Data=obj.Template.Oref(i)
+	    	do template.Template.SetAt($ZCONVERT(Data.Data,"I","UTF8"),$ZCONVERT(Data.Name,"I","UTF8"))
+	    	}
+        $$$THROWONERROR(st,template.%Save())
+        
+   } catch ex{set st=ex.AsStatus()}
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="UpdateTemplate">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+   try{
+	   $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+       
+       	set template=##class(Template.Template).%OpenId(obj.ID)     
+       	set template.Name=		$ZCONVERT(obj.Name,"I","UTF8")
+       	set template.Lang=	$ZCONVERT(obj.Lang,"I","UTF8")
+       	set template.Rule=##class(Template.Rule).%OpenId(obj.Rule)
+       	do template.Template.Clear()
+    
+
+    
+    	for i=1:1:obj.Template.Size{
+	    	set Data=obj.Template.Oref(i)
+	    	do template.Template.SetAt($ZCONVERT(Data.Data,"I","UTF8"),$ZCONVERT(Data.Name,"I","UTF8"))
+	    	}
+        $$$THROWONERROR(st,template.%Save())
+        
+       
+        
+   } catch ex{set st=ex.AsStatus()}
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetTemplate">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	
+	if (##class(Template.Template).%ExistsId(ID))
+	{
+	set Template=##class(Template.Template).%OpenId(ID)
+		w "{""children"":["	
+		set key=""
+		set str=""
+		set key= Template.Template.Next(key)
+		while (key'=""){
+			set str=str_"{""Name"":"""_key_""",""Data"":"""_Template.Template.GetAt(key)_"""},"
+			
+			set key= Template.Template.Next(key)
+			}
+			
+		w "{""ID"":"""_ID_""",""Lang"":"""_Template.Lang_""",""Name"":"""_Template.Name_""",""Rule"":"""_Template.Rule.%Id()_""","
+		w """Template"":["_$E(str,1,*-1)_"]}"
+		w "]}"	
+	}
+	else{
+		w "Template does not exist"
+		}
+
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetNameSpaceList">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set List=##class(%ArrayOfDataTypes).%New()
+	set List=##class(Template.Util).%NameSpaceList()
+	w "{""children"":["
+				
+		set temp=""
+	set key=""
+	set key=List.Next()
+	while key'="" {
+		   set temp=temp_"{""Name"":"""_List.GetAt(key)_"""},"
+		   set key=List.Next(key)
+		}
+	w $E(temp,1,*-1)
+	w "]}"
+		
+		Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetClassList">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>NameSpace</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set List=##class(%ArrayOfDataTypes).%New()
+	set List=##class(Template.Util).%SubClassList(NameSpace,,)
+	w "{""children"":["
+				
+	set temp=""
+	set key=""
+	set key=List.Next()
+	while key'="" {
+		   //set temp=temp_"{""Name"":"""_$REPLACE(List.GetAt(key),".","_")_"""},"
+		   set temp=temp_"{""Name"":"""_List.GetAt(key)_"""},"
+		   set key=List.Next(key)
+		}
+	w $E(temp,1,*-1)
+	w "]}"
+		
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[/************************************************* Rules****************************/
+]]></Content>
+</UDLText>
+
+<Method name="GetRules">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set Query =	"SELECT * "_
+					"FROM Template.Rule "
+								   
+	do ..GetJSONData(Query)
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetRulesSelect">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Query</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set Rules =	"SELECT * "_
+				"FROM Template.Rule "_
+				"WHERE Lang LIKE '"_Query_"'"
+								   
+	do ..GetJSONData(Rules)
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GetRule">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	
+	if (##class(Template.Rule).%ExistsId(ID))
+	{
+	set Rule=##class(Template.Rule).%OpenId(ID)
+		w "{""children"":["	
+		set key=""
+		set str=""
+		set key= Rule.Template.Next(key)
+		while (key'=""){
+			set str=str_"{""Name"":"""_key_""",""Data"":"""_Rule.Template.GetAt(key)_"""},"
+			
+			set key= Rule.Template.Next(key)
+			}
+			
+		w "{""ID"":"""_ID_""",""Lang"":"""_Rule.Lang_""",""Name"":"""_Rule.Name_""","
+		w """Template"":["_$E(str,1,*-1)_"]}"
+		w "]}"	
+	}
+	else{
+		w "Rule does not exist"
+		}
+
+
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="CreateRule">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		set st=$$$OK
+   try{
+	   $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+       
+       	set rule=##class(Template.Rule).%New()      
+       	set rule.Name=		$ZCONVERT(obj.Name,"I","UTF8")
+       	set rule.Lang=	$ZCONVERT(obj.Lang,"I","UTF8")
+       	set rule.Template=	$ZCONVERT(obj.Template,"I","UTF8")
+       	
+       	for i=1:1:obj.Template.Size{
+	    	set Data=obj.Template.Oref(i)
+	    	do rule.Template.SetAt($ZCONVERT(Data.Data,"I","UTF8"),$ZCONVERT(Data.Name,"I","UTF8"))
+	    	}
+    
+        $$$THROWONERROR(st,rule.%Save())
+        
+   } catch ex{set st=ex.AsStatus()}
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="UpdateRule">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+   try{
+	   $$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+       
+       	set rule=##class(Template.Rule).%OpenId(obj.ID)     
+       	set rule.Name=		$ZCONVERT(obj.Name,"I","UTF8")
+       	set rule.Lang=	$ZCONVERT(obj.Lang,"I","UTF8")
+       	do rule.Template.Clear()
+    
+
+    
+    	for i=1:1:obj.Template.Size{
+	    	set Data=obj.Template.Oref(i)
+	    	do rule.Template.SetAt($ZCONVERT(Data.Data,"I","UTF8"),$ZCONVERT(Data.Name,"I","UTF8"))
+	    	}
+        $$$THROWONERROR(st,rule.%Save())
+        
+       
+        
+   } catch ex{set st=ex.AsStatus()}
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="GetJSONData">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>SQLRequest:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+  set st=$$$OK
+   try{do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQLRequest)}
+   catch ex{set st=ex.AsStatus()}
+  quit st
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.JSOND</DataLocation>
+<DefaultData>JSONDefaultData</DefaultData>
+<IdLocation>^Template.JSOND</IdLocation>
+<IndexLocation>^Template.JSONI</IndexLocation>
+<StreamLocation>^Template.JSONS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="JSONDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>TTFC</Value>
+</Value>
+<Value name="3">
+<Value>TTLC</Value>
+</Value>
+<Value name="4">
+<Value>SentChars</Value>
+</Value>
+<Value name="5">
+<Value>RecChars</Value>
+</Value>
+<Value name="6">
+<Value>Username</Value>
+</Value>
+<Value name="7">
+<Value>Password</Value>
+</Value>
+<Value name="8">
+<Value>Device</Value>
+</Value>
+<Value name="9">
+<Value>DeviceState</Value>
+</Value>
+<Value name="10">
+<Value>ForceReuseDevice</Value>
+</Value>
+<Value name="11">
+<Value>ErrorOnNextOpen</Value>
+</Value>
+<Value name="12">
+<Value>TimeLastUsed</Value>
+</Value>
+<Value name="13">
+<Value>SocketTimeout</Value>
+</Value>
+<Value name="14">
+<Value>EntityBody</Value>
+</Value>
+<Value name="15">
+<Value>SOAPBuffering</Value>
+</Value>
+<Value name="16">
+<Value>HTTPVersion</Value>
+</Value>
+<Value name="17">
+<Value>Location</Value>
+</Value>
+<Value name="18">
+<Value>Port</Value>
+</Value>
+<Value name="19">
+<Value>Https</Value>
+</Value>
+<Value name="20">
+<Value>SSLConfiguration</Value>
+</Value>
+<Value name="21">
+<Value>SSLError</Value>
+</Value>
+<Value name="22">
+<Value>SSLCheckServerIdentity</Value>
+</Value>
+<Value name="23">
+<Value>SSLCheckIdentityInternal</Value>
+</Value>
+<Value name="24">
+<Value>ProxyTunnel</Value>
+</Value>
+<Value name="25">
+<Value>Timeout</Value>
+</Value>
+<Value name="26">
+<Value>OpenTimeout</Value>
+</Value>
+<Value name="27">
+<Value>FollowRedirect</Value>
+</Value>
+<Value name="28">
+<Value>ProxyServer</Value>
+</Value>
+<Value name="29">
+<Value>ProxyPort</Value>
+</Value>
+<Value name="30">
+<Value>ProxyHTTPS</Value>
+</Value>
+<Value name="31">
+<Value>RequestHeaderCharset</Value>
+</Value>
+<Value name="32">
+<Value>PostGzip</Value>
+</Value>
+<Value name="33">
+<Value>AcceptGzip</Value>
+</Value>
+<Value name="34">
+<Value>HttpResponse</Value>
+</Value>
+<Value name="35">
+<Value>NoDefaultContentCharset</Value>
+</Value>
+<Value name="36">
+<Value>RedirectNo</Value>
+</Value>
+<Value name="37">
+<Value>ReadRawMode</Value>
+</Value>
+<Value name="38">
+<Value>WriteRawMode</Value>
+</Value>
+<Value name="39">
+<Value>ResponseStream</Value>
+</Value>
+<Value name="40">
+<Value>WriteTimeout</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

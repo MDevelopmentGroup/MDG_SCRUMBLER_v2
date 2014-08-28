@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Lap">
+<Super>%Persistent</Super>
+<TimeCreated>63354,69057.487086</TimeCreated>
+
+<Property name="Task">
+<Description>
+Задача на круге</Description>
+<Type>Scrumbler.Task</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Laps</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TaskIndex">
+<Properties>Task</Properties>
+</Index>
+
+<Property name="UserShooter">
+<Description>
+Стрелок на круге</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>UserLaps</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="UserShooterIndex">
+<Properties>UserShooter</Properties>
+</Index>
+
+<Property name="TimeStampBegin">
+<Description>
+Время начала круга</Description>
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="TimeStampEnd">
+<Description>
+Время окончания круга</Description>
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="isHited">
+<Description>
+Поражена ли цель на круге</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.LapD</DataLocation>
+<DefaultData>LapDefaultData</DefaultData>
+<IdLocation>^Scrumbler.LapD</IdLocation>
+<IndexLocation>^Scrumbler.LapI</IndexLocation>
+<StreamLocation>^Scrumbler.LapS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="LapDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Task</Value>
+</Value>
+<Value name="3">
+<Value>UserShooter</Value>
+</Value>
+<Value name="4">
+<Value>TimeStampBegin</Value>
+</Value>
+<Value name="5">
+<Value>TimeStampEnd</Value>
+</Value>
+<Value name="6">
+<Value>isHited</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

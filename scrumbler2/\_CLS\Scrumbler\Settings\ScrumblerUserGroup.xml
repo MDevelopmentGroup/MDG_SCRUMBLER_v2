@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Settings.ScrumblerUserGroup">
+<Super>%Library.SerialObject</Super>
+<TimeCreated>63358,50700.466452</TimeCreated>
+
+<Property name="Role">
+<Description>
+Тип пользователя в группе</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheSerialState</Type>
+<State>ScrumblerUserGroupState</State>
+<StreamLocation>^Scrumbler4F16.ScrumblerUs421DS</StreamLocation>
+<Data name="ScrumblerUserGroupState">
+<Value name="1">
+<Value>Type</Value>
+</Value>
+<Value name="2">
+<Value>Role</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

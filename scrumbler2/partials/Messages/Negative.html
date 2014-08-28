@@ -1,0 +1,27 @@
+<div class="" ng-repeat="message in messages  | filter:SearchText | filter:users[SelectSystemUser].FirstName">
+    <div class="row">
+        <div class="col-lg-1">
+            <img class="img-rounded" style="max-width: 25px" ng-src="{{message.Gravatar}}">
+        </div>
+        <div class="col-lg-1">
+            <div class="row">{{message.FirstName}}</div>
+            <div class="row">{{message.SecondName}}</div>
+            <div class="row">{{message.CommentType}}</div>
+
+        </div>
+        <div class="col-lg-1">
+            <div class="row">
+                {{message.ShortDescripion}}
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="row" ng-bind-html="message.CommentBody">
+
+            </div>
+            <div class="row">
+                <a href="{{message.URL}}" target="_blank">{{message.CommentToURL}}</a>
+            </div>
+        </div>
+    </div>
+    <hr style="margin: 5px">
+</div>

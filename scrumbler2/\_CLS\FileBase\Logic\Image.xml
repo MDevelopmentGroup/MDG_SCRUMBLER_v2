@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="FileBase.Logic.Image">
+<TimeCreated>63379,86360.477016</TimeCreated>
+
+<Method name="GetImages">
+<Description>
+Возвращает все изображения пользователя</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Type</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	
+	try{
+	set user=##class(WEB.Auth).GetCurrentUser()
+	//set user="3"
+	set SQL="SELECT "_
+				"ID, Name,  Util.Util_GetImageURL(Name) AS URL "_
+			"FROM FileBase.Image "_
+			"WHERE "_
+				"Author->ID="_user_" "_
+			"ORDER BY CreationTime"
+	if (user'=""){
+	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+		}
+	}
+    catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="UploadImage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+
+	//do %response.SetHeader("Status Code","418 Чайник")
+	
+	
+	do %response.SetHeader("CACHE-CONTROL","max-age=2592000, private")
+	do %response.SetHeader("Content-Type","image/jpeg")
+	
+
+	
+	set stream=##class(%Stream.FileBinary).%New()
+	set stream.Filename="C:\##mdg\MDG_SCRUMBLER_v2\scrumbler2\img\1.jpg"
+	do stream.OutputToDevice()
+
+	
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>URL:%String,Default="",Name="",HASH=""</FormalSpec>
+<ReturnType>FileBase.Image</ReturnType>
+<Implementation><![CDATA[
+	set image=##class(FileBase.Image).%New()
+	set image.Author=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set image.URL=URL
+	set image.HASH=HASH
+	set image.Name=Name
+	set image.Default=Default
+	do image.%Save()
+	Q image
+]]></Implementation>
+</Method>
+</Class>
+</Export>

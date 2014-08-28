@@ -1,0 +1,49 @@
+<div class="modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog" >
+        <div class="modal-content" >
+             <div class="modal-body" >
+                 <div class="row">
+                     <div class="col-lg-1">
+                         <div class="btn-group-vertical btn-group-sm">
+                             <button type="button" class="btn btn-default {{selection==1 | FilterButtonsUpload}}" ng-click="selection=1">
+                                 <span class="glyphicon glyphicon-floppy-save "></span>
+                             </button>
+                             <button type="button" class="btn btn-default {{selection==2 | FilterButtonsUpload}}" ng-click="selection=2">
+                                 <span class="glyphicon glyphicon-picture"></span>
+                             </button>
+                             <button type="button" class="btn btn-default {{selection==3 | FilterButtonsUpload}}"  ng-click="selection=3">
+                                 <span class="glyphicon glyphicon-briefcase"></span>
+                             </button>
+                             <button type="button" class="btn btn-default {{selection==4 | FilterButtonsUpload}}"   ng-click="selection=4">
+                                 <span class="glyphicon glyphicon-cog"></span>
+                             </button>
+                         </div>
+                     </div>
+                     <div class="col-lg-11" ng-init="selection=1">
+                         <div class="animate-switch-container"  ng-switch="selection">
+                             <div class="animate-switch" ng-switch-when="1">
+                                 <div class="row">
+                                     <div class="col-lg-12">
+                                         <img style="max-width: 300px;max-height: 200px; height: 200px" ng-src="{{src}}">
+                                     </div>
+                                 </div>
+                                 <div class="row">
+                                     <div class="col-lg-12">
+                                         <input type="file" class="form-control">
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="animate-switch" ng-switch-when="2">2</div>
+                             <div class="animate-switch" ng-switch-when="3">3</div>
+                             <div class="animate-switch" ng-switch-when="4">4</div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-default" ng-click="Ok();$hide()">{{Page.Modal.CancelTask.Ok}}</button>
+                 <button type="button" class="btn btn-default" ng-click="$hide()">{{Page.Modal.CancelTask.Cancel}}</button>
+             </div>
+         </div>
+    </div>
+</div>

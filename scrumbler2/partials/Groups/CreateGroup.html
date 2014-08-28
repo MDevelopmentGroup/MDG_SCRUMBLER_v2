@@ -1,0 +1,51 @@
+<div>
+    <div class="row">
+        <div class="col-lg-2">
+            <img style="max-height: 150px" ng-src="{{group.GroupGravatar}}">
+        </div>
+    </div>
+    <form class="form-horizontal" ng-model="group" ng-submit="Submit(group)">
+        <div class="form-group">
+            <label class="control-label col-lg-2">{{Page.CreateGroup.Name}}</label>
+            <div class="col-lg-5">
+                <input class="form-control" type="text" ng-model="group.Name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2">{{Page.CreateGroup.Gravatar}}</label>
+            <div class="col-lg-5">
+                <input class="form-control" type="url" ng-model="group.GroupGravatar">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-lg-2"> {{Page.CreateGroup.isOpen}}:</label>
+            <div class="col-lg-1" ng-init="group.isOpen=true">
+                <input type="checkbox" class="form-control" ng-model="group.isOpen"   />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> {{Page.CreateGroup.ShortDescription}}:</label>
+            <div class="col-lg-9" >
+                <!--<textarea redactor="" rows="15" class="form-control" ng-model="group.Description"></textarea>-->
+
+                <text-angular ng-model="group.ShortDescription"></text-angular>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> {{Page.CreateGroup.Description}}:</label>
+            <div class="col-lg-9" >
+                <!--<textarea redactor="" rows="15" class="form-control" ng-model="group.Description"></textarea>-->
+
+                <text-angular ng-model="group.Description"></text-angular>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-lg-2"> </label>
+            <div class="col-lg-5" >
+                <button class="btn btn-success" type="submit">{{Page.CreateGroup.Success}}</button>
+            </div>
+        </div>
+
+    </form>
+</div>

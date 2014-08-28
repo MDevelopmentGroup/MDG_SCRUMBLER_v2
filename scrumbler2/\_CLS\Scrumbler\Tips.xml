@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Tips">
+<Super>%Persistent</Super>
+<TimeCreated>63389,36050.279356</TimeCreated>
+
+<Property name="Body">
+<Type>%Text</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="1000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Name">
+<Type>%Text</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="1000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Property name="CreationTime">
+<Description>
+Когда была создана запись</Description>
+<Type>%TimeStamp</Type>
+<InitialExpression>$zdt($h,3)</InitialExpression>
+</Property>
+
+<Method name="CreateTip">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set tip=##class(Scrumbler.Tips).%New()
+	set tip.Body=$ZCONVERT(obj.Body,"I","UTF8")
+	set tip.Name=$ZCONVERT(obj.Name,"I","UTF8")
+	set tip.Author=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	$$$THROWONERROR(st,tip.%Save())
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetAll">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set st=$$$OK		
+	set SQL ="select ID, Name, Body from Scrumbler.Tips order by CreationTime"
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Method name="Delete">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<Implementation><![CDATA[
+ 	set st=$$$OK
+	set st=##class(Scrumbler.Tips).%DeleteId(ID)
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="Update">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+ 	set st=$$$OK
+    try
+	{
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set tip=##class(Scrumbler.Tips).%OpenId(obj.ID)
+	set tip.Body=$ZCONVERT(obj.Body,"I","UTF8")
+	set tip.Name=$ZCONVERT(obj.Name,"I","UTF8")
+	//set tip.Author=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	$$$THROWONERROR(st,tip.%Save())
+	}
+	Catch ex{set st=ex.AsStatus()}
+    q st
+]]></Implementation>
+</Method>
+
+<Method name="GetRnd">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK	
+	&sql(SELECT MAX(ID) into:maxid FROM Scrumbler.Tips)
+			// Выбираем активные вакансии на русском языке
+			//#dim z array
+			#dim List =$LB("")
+			#dim MaxLength = 1
+  			
+			
+			
+				set rand = $RANDOM(maxid)
+				while '##class(Scrumbler.Tips).%ExistsId(rand)
+				{
+					set rand = $RANDOM(maxid)
+					 	
+				}
+			set SQL ="SELECT ID, Name, Body "_
+				   "FROM Scrumbler.Tips "_
+ 				   "WHERE  ID="_rand
+			
+	
+			
+    try{
+	    do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	    }
+    catch ex{set st=ex.AsStatus()}
+
+  	quit st
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TipsD</DataLocation>
+<DefaultData>TipsDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TipsD</IdLocation>
+<IndexLocation>^Scrumbler.TipsI</IndexLocation>
+<StreamLocation>^Scrumbler.TipsS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TipsDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>TipBo
+dy</Value>
+</Value>
+<Value name="3">
+<Value>Body</Value>
+</Value>
+<Value name="4">
+<Value>Name</Value>
+</Value>
+<Value name="5">
+<Value>Author</Value>
+</Value>
+<Value name="6">
+<Value>CreationTime</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

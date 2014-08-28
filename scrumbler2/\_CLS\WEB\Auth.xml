@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="WEB.Auth">
+<TimeCreated>63354,68671.360475</TimeCreated>
+
+<Method name="SetUserIDCompanyIDForSession">
+<Description>
+Записываем ID Пользователя в сессию</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>UserID="",CompanyID=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	
+	/*set session =##class(%CSP.SessionEvents).OnStartSession()
+	set session=##class(%CSP.Session).%OpenId(%session.SessionId)
+	set session.Data("UserID")=UserID
+	set session.Data("CompanyID")=CompanyID
+	set st= session.%Save()
+	w st_" Статус",!
+	zw session */
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetCurrentUser">
+<Description>
+Возвращаем ID Пользователя </Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set session =%request.GetCookie("ScrumblerSesson")
+	set ip =%request.GetCgiEnv("REMOTE_ADDR")
+	&sql(select SUser into :ID from WEB.Session where SessionId=:session and  IP=:ip)
+	Q ID
+]]></Implementation>
+</Method>
+
+<Method name="GetCurrentUserObj">
+<Description>
+Возвращаем Пользователя  в Объекте</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>Scrumbler.ScrumblerUser</ReturnType>
+<Implementation><![CDATA[
+	set session =%request.GetCookie("ScrumblerSesson")
+	set ip =%request.GetCgiEnv("REMOTE_ADDR")
+	&sql(select SUser into :ID from WEB.Session where SessionId=:session and  IP=:ip)
+	Q ##class(Scrumbler.ScrumblerUser).%OpenId(ID)
+]]></Implementation>
+</Method>
+
+<Method name="GetCurrentSession">
+<Description>
+Возвращаем Текущую сессию 
+Если возвращает пустоту - значит пользователь неавторизован</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set session =%request.GetCookie("ScrumblerSesson")
+	set ip =%request.GetCgiEnv("REMOTE_ADDR")
+	&sql(select SessionId into :count from WEB.Session where SessionId=:session and IP=:ip)
+	if (count=""){set session=""}
+	Q session
+]]></Implementation>
+</Method>
+
+<Method name="GetCurrentCompany">
+<Description>
+Возвращаем ID Компании </Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set session =%request.GetCookie("ScrumblerSesson")
+	set ip =%request.GetCgiEnv("REMOTE_ADDR")
+	&sql(select SUser->Company into :ID from WEB.Session where SessionId=:session and  IP=:ip)
+
+	Q ID
+]]></Implementation>
+</Method>
+
+<Method name="Login">
+<Description>
+Авторизация</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	Try
+	{
+		$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+		set login=obj.Login
+		set password=obj.Password
+
+		set phash=$System.Encryption.MD5Hash(password),UserID="",CompanyID="" NEW SQLCODE
+		&sql(select ID,FirstName,Gravatar into :UserID,:Name,:Gravatar from Scrumbler.ScrumblerUser where Password =:phash and Email=:login and isActive=1)
+		if SQLCODE=0
+		{
+			set st=##class(WEB.Session).CreateSession(UserID)
+			do ..SetLoginResponse(Name,Gravatar)
+			//do %response.SetCookie("ScrumblerData",Name_"|"_Gravatar,,"/")
+			w "{""Status"":{""Success"":true,""Data"":1}}"
+			
+		}
+		else{w "{""Status"":{""Success"":false,""Data"":0}}"}	
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="M1">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set steam=##class(%FileBinaryStream).%New()
+	//set steam.Filename="C:/s11.jpg" // WinVer
+	set steam.Filename="/InterSystems/Cache/##mdg/MDG_SCRUMBLER_v2/scrumbler2/s11.jpg"  //*nix
+	w ##class(Util.Util).GetHEXMD5HashStream(steam)
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="SetLoginResponse">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Name,Gravatar</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	#dim Data as %String=Name_"|"_Gravatar
+	do %response.SetCookie("ScrumblerData",Data,,"/")
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="SetLoginCookieJSON">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pObject:%ZEN.proxyObject=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim Data As %String=""
+	#dim User As %String= pObject.%DispatchGetProperty("User")
+	#dim Gravatar As %String= pObject.%DispatchGetProperty("Gravatar")
+	#dim Name As %String= pObject.%DispatchGetProperty("Name")
+	set Data="{""Name"":"""_Name_""",""Gravatar"":"""_Gravatar_""",""User"":"""_User_"""}"
+	set Data=$replace(Data,"/","\/")
+	do %response.SetCookie("ScrumblerData",Data,,"/")
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="M2">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//set pObject=##class(%ZEN.proxyObject).%New()
+	//set pObject.Name="Имя"
+	//set pObject.Gravatar="Граватар"
+	//do ..SetLoginResponse2(pObject)
+	Q $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^WEB.AuthD</DataLocation>
+<DefaultData>AuthDefaultData</DefaultData>
+<IdLocation>^WEB.AuthD</IdLocation>
+<IndexLocation>^WEB.AuthI</IndexLocation>
+<StreamLocation>^WEB.AuthS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="AuthDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+
+<Storage name="custom">
+<Type>%Library.CustomStorage</Type>
+</Storage>
+</Class>
+</Export>

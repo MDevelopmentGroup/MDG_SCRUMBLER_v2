@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Util.Mail.SendMail">
+<Description>
+CTP Отправка почтовых уведомлений</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63379,51251.415516</TimeCreated>
+
+<Method name="NewMail">
+<Description>
+Отправляем почту на указаный TextParam 
+Id параметр для указания объекта c которым будем работать
+Значения TextParam, Type и Id:
+TaskClose    Задача завершена               ID задачи       TextParam пусто
+TaskSetted   Задача назначена               ID задачи       TextParam пусто
+UserInvited  Приветствие пользователя       ID пользователя TextParam Открытый пароль пользователя
+EmailConfirm  Приглашение пользователя      ID группы       TextParam Email пользователя
+UserInviteToGroup - приглашение в группу    ID пользователя
+TODO: Возможно сделать TextParam коллекцией для указания приглашающего пользователя, например</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Id:%String,TextParam:%String,Type:%String,IdGroup:%String=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+
+ /*
+    #dim file ="C:\##mdg\MDG_SCRUMBLER_v2\scrumbler2\invite.html"
+        //TODO: сделать домен параметром
+    #dim server = "http://91.247.68.36:8090/"
+    #dim mdgserver =server_"csp/mdg-scrumbler-2/index.html"
+    #dim filelink =server_"csp/mdg-scrumbler-2/invite.html"
+ */
+    #dim file ="/InterSystems/Cache/##mdg/MDG_SCRUMBLER_v2/scrumbler2/invite.html"
+        //TODO: сделать домен параметром
+    #dim server = "http://akvant.pro/"
+    #dim mdgserver =server_"scrumbler/index.html"
+    #dim filelink =server_"scrumbler/invite.html"
+
+    #dim tasklist = "#/Tasks"
+    #dim personalroom = "#/Room"
+    #dim registration = "#/registration/"
+    #dim Email = TextParam
+
+    If (Type="TaskClose")
+    {
+        // получаем последний комментарий
+        &sql(SELECT TOP 1 SC.ID into:CommentID FROM Scrumbler.Comment AS SC WHERE SC.Task = :Id ORDER BY SC.ID DESC)
+        set m=##class(Scrumbler.Task).%OpenId(Id)
+        W !,"i Find?!"
+        set c=##class(Scrumbler.Comment).%OpenId(CommentID)
+        set MailSubject="{MDG}"_TextParam_": "_m.Name
+        set MailBody=TextParam_" задача: "_m.Name_"<br><b> Разработчик:</b> "_m.UserShooter.FirstName_" "_m.UserShooter.LastName_
+        "<hr> <a href='"_mdgserver_tasklist_"'>перейти к дереву проектов </a>"_
+        "<br><b>Завершающий комментарий</b>"_c.CommentBody
+        
+        //TODO: необходим счётчик задач в кабинете пользователя для указания на количество оставшихся задач
+        /*if (##class(scrumbler.Target).isUserEmpty(m.Shooter.%Id()) = 0){set MailBody=MailBody_"<h1>Это была его последняя задача</h1>"}
+                Else { set MailBody=MailBody_"<h2>Осталось ещё <b>"_##class(scrumbler.Target).isUserEmpty(m.Shooter.%Id())_"</b> задач</h2>" }
+        */
+        set Email=m.UserInitiator.Email
+    }
+    ElseIf (Type="TaskSetted")
+    {
+        // получаем первый комментарий
+        &sql(SELECT TOP 1 SC.ID into:CommentID FROM Scrumbler.Comment AS SC WHERE SC.Task = :Id ORDER BY SC.ID DESC)
+        set m=##class(Scrumbler.Task).%OpenId(Id)
+        //TODO: Выдрать technodoc
+        set c=##class(Scrumbler.Comment).%OpenId(CommentID)
+        set MailSubject="{MDG}Вам задача: "_m.Name
+        w m.UserInitiator.FirstName
+        w m.UserInitiator.LastName
+        set MailBody="Вам назначена задача: "_m.Name_"<br><b> Автор:</b> "_m.UserInitiator.FirstName_" "_m.UserInitiator.LastName_
+        "<hr> <a href='"_mdgserver_personalroom_"'>перейти в личный кабинет </a>"_
+        "<br><b>Инициирующий комментарий</b>"_c.CommentBody
+        
+        set Email=m.UserShooter.Email
+    }
+
+    ElseIf (Type="EmailConfirm")
+    {
+        set MailSubject="{MDG} Подтверждение электронной почты "
+                                             
+        set MailBody="Доброго времени суток! <br> "_
+        "по данной ссылке Вы сможете зарегистрироваться на портале Скрамблер, подробное описание возможностей приведено ниже <br>"_
+        "<a href='"_mdgserver_registration
+        set Group = ##class(Scrumbler.ScrumblerGroup).%OpenId(Id)
+        set CompanyID = Group.Company.%Id()
+        set TimeLink = ##class(Util.TimeLinks).CreateLink(CompanyID,Id)
+        set MailBody=MailBody_TimeLink_"'> приглашение </a> <br/> или скопируйте в браузер <br/>"_mdgserver_registration_TimeLink_" <hr>"_
+        "<br>Руководство пользователя: <a href=""http://ugroup.github.io/ScrumblerBook/"">http://ugroup.github.io/ScrumblerBook/</a><br>"_
+        "<br>Внешний адрес системы: <a href=""http://akvant.pro/scrumbler/index.html"">http://akvant.pro/scrumbler/index.html</a><br>"
+        /*
+        Set stream=##class(%FileCharacterStream).%New()
+        Set stream.Filename=file
+        //читаем весь файл
+        Set MailBody=MailBody_stream.Read(stream.Size)
+        */
+    }
+    ElseIf (Type="UserInvited")
+    {
+        set User = ##class(Scrumbler.ScrumblerUser).%OpenId(Id)
+        set MailSubject="{MDG}Добро пожаловать в Cкрамблер! "
+        set MailBody="Доброго времени суток! <br> "_
+        "Уважаемый (ая)"_User.FirstName_" "_User.LastName_
+        "<br><b>Ваш логин</b> "_User.Email_
+        "<br><b>Ваш пароль</b> "_TextParam_
+        "<br><a href'"_mdgserver_personalroom_"'>Перейти в скрамблер</a> "_
+        "<hr>Краткое описание возможностей приведено ниже <br>"
+        Set stream=##class(%FileCharacterStream).%New()
+        Set stream.Filename=file
+        //читаем весь файл
+        Set MailBody=MailBody_stream.Read(stream.Size)
+    }
+    ElseIf (Type="UserInviteToGroup")
+    {
+        set User = ##class(Scrumbler.ScrumblerUser).%OpenId(Id)
+        set relGroupUser=##class(Scrumbler.ScrumblerUserGroup).%OpenId(IdGroup)
+        set Group=##class(Scrumbler.ScrumblerGroup).%OpenId(relGroupUser.%Id())
+        set MailSubject="{MDG}Добро пожаловать в группу "_Group.Name
+        set MailBody="Доброго времени суток! <br> "_
+        "Уважаемый (ая)"_User.FirstName_" "_User.LastName_
+        "<br><a href'"_mdgserver_personalroom_"'>Перейти в скрамблер</a> "_TextParam_
+        "<hr>Краткое описание возможностей приведено ниже <br>"
+        Set stream=##class(%FileCharacterStream).%New()
+        Set stream.Filename=file
+        //читаем весь файл
+        Set MailBody=MailBody_stream.Read(stream.Size)
+    }
+    Else
+    
+    {
+        w !,"ERROR: Wrong input parametrs"
+    }
+ // Нулевые настройки почтового ящика
+ // Отправитель
+ set MailFrom="mail@rbufa.ru"
+ // stmp сервер diamex.info
+ set MailSMTP="mx25.valuehost.ru"
+ // Пароль
+ set MailPASS="HonLB8"
+    
+  #dim smtp As %Net.SMTP
+  #dim mail As %Net.MailMessage
+  
+  set mail=##class(%Net.MailMessage).%New()
+  // Отправитель
+  set mail.From=MailFrom
+  // Тема письма
+  set mail.Subject=MailSubject
+    // Кодировка
+  set mail.Charset="utf-8"
+  set mail.IsHTML=1
+  set mail.ContentType="text/html"
+  // Текст письма
+  do mail.TextData.Write(MailBody)
+  // Получатель
+  do mail.To.Insert(Email)
+  set smtp=##class(%Net.SMTP).%New()
+  // Сервер исходящей почты, например smtp.mail.ru
+  set smtp.smtpserver=MailSMTP
+  // Порт
+  set smtp.port=25
+  Set auth=##class(%Net.Authenticator).%New()
+  // Имя пользователя, 123@mn.ru
+  set auth.UserName=MailFrom
+  // Пароль
+  set auth.Password=MailPASS
+  set smtp.authenticator=auth
+  //w !,MailBody
+  s status= smtp.Send(mail)
+  w !,"mail must be sended )"
+  Quit status
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Util.Mail.SendMailD</DataLocation>
+<DefaultData>SendMailDefaultData</DefaultData>
+<IdLocation>^Util.Mail.SendMailD</IdLocation>
+<IndexLocation>^Util.Mail.SendMailI</IndexLocation>
+<StreamLocation>^Util.Mail.SendMailS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="SendMailDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

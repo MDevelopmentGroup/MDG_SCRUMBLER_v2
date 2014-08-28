@@ -1,0 +1,58 @@
+<br>
+
+<div class="row">
+    <div class="jumbotron" ng-repeat="group in admingroups | filter:SearchText | orderBy:FilterName:reverse">
+        <div class="panel panel-default" style="margin-bottom: 3px">
+            <div class="panel-body">
+                <a href="#/AdminGroup/{{group.ID}}">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <img ng-src="{{group.GroupGravatar}}" style="max-height: 80px">
+                        </div>
+                        <div class="col-lg-1">
+                            <div class="row">
+                                {{group.Name}}
+                            </div>
+
+                        </div>
+                        <div class="col-lg-6">
+                            <div ng-bind-html="group.ShortDescription">
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div ng-repeat="tag in group.Tags">
+                                <label class="label label-default">{{tag.text}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-10">
+                <div ng-if="group.Edit">
+                    <a href="#/UpdateGroup/{{group.ID}}" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </a>
+                    <button class="btn btn-default btn-sm" ng-click="UserInvite(group.ID)">
+                        <span class="glyphicon glyphicon-plus"> </span>
+                        <span class="glyphicon glyphicon-user"> </span>
+                    </button>
+                </div>
+
+            </div>
+            <div class="col-lg-2">
+                <div class="row">
+                    <a href="#/User/{{group.UserID}}">
+                        <div class="col-lg-2">
+                            <img style="max-height: 20px" class="img-rounded" ng-src="{{group.Gravatar}}">
+                        </div>
+                        <div class="col-lg-10">
+                            {{group.FirstName}} {{group.LastName}}
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

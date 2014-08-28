@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.TechnoDoc.Target">
+<Description>
+Подзадачи проекта/задачи (Направления)</Description>
+<Super>%Persistent</Super>
+<TimeCreated>63392,67851.849236</TimeCreated>
+
+<Property name="TechnoDoc">
+<Type>Scrumbler.TechnoDoc</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Targets</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TechnoDocIndex">
+<Properties>TechnoDoc</Properties>
+</Index>
+
+<Property name="Target">
+<Description>
+Цель</Description>
+<Type>%Text</Type>
+<Parameter name="MAXLEN" value="1000000"/>
+<Parameter name="MINLEN" value="0"/>
+</Property>
+
+<Property name="Company">
+<Type>Scrumbler.Company</Type>
+</Property>
+
+<Property name="Author">
+<Type>Scrumbler.ScrumblerUser</Type>
+</Property>
+
+<Property name="Type">
+<Type>%Integer</Type>
+</Property>
+
+<Query name="GetTargetsByTechnoDocID">
+<Type>%SQLQuery</Type>
+<FormalSpec>ID:%String</FormalSpec>
+<SqlQuery>SELECT %ID,Target,Type FROM Target
+ WHERE (TechnoDoc = :ID) 
+ ORDER BY %ID</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.TechnoDoc.TargetD</DataLocation>
+<DefaultData>TargetDefaultData</DefaultData>
+<IdLocation>^Scrumbler.TechnoDoc.TargetD</IdLocation>
+<IndexLocation>^Scrumbler.TechnoDoc.TargetI</IndexLocation>
+<StreamLocation>^Scrumbler.TechnoDoc.TargetS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TargetDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>TechnoDoc</Value>
+</Value>
+<Value name="3">
+<Value>Target</Value>
+</Value>
+<Value name="4">
+<Value>Company</Value>
+</Value>
+<Value name="5">
+<Value>Author</Value>
+</Value>
+<Value name="6">
+<Value>Type</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

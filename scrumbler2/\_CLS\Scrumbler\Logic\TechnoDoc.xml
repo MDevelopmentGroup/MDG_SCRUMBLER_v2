@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.TechnoDoc">
+<TimeCreated>63392,68927.525036</TimeCreated>
+
+<Method name="Create">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>obj:%ZEN.proxyObject,task:Scrumbler.Task,Type=0</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	Try
+	{
+	//$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	set TechnoDoc=##class(Scrumbler.TechnoDoc).%New()
+	set user=##class(Scrumbler.ScrumblerUser).%OpenId(##class(WEB.Auth).GetCurrentUser())
+	set company=##class(Scrumbler.Company).%OpenId(##class(WEB.Auth).GetCurrentCompany())
+	//set task=##class(Scrumbler.Task).%OpenId(obj.TaskID)
+	
+	set TechnoDoc.Author=user
+	set TechnoDoc.Task=task
+	set TechnoDoc.Type=Type
+	$$$THROWONERROR(st,TechnoDoc.%Save())
+	if (obj.Annotation'=""){
+		set Annotation=##class(Scrumbler.TechnoDoc.Annotation).%New()
+		set Annotation.Body=$ZCONVERT(obj.Annotation,"I","UTF8")
+		set Annotation.Company=company
+		set Annotation.TechnoDoc=TechnoDoc
+		set Annotation.Type=Type
+		set Annotation.Author=user
+		$$$THROWONERROR(st,Annotation.%Save())
+	}
+	if (obj.Sources'=""){
+		for i=1:1:obj.Sources.Size {
+			set S= obj.Sources.Oref(i)
+			set Source=##class(Scrumbler.TechnoDoc.Source).%New()
+			set Source.URL=$ZCONVERT(S.URL,"I","UTF8")
+			set Source.Title=$ZCONVERT(S.Title,"I","UTF8")
+			set Source.TechnoDoс=TechnoDoc
+			set Source.Company=company
+			set Source.Author=user
+			$$$THROWONERROR(st,Source.%Save())			
+		}
+	}
+	if (obj.SourceTexts'=""){
+		for i=1:1:obj.SourceTexts.Size {
+			set SourceT= obj.SourceTexts.Oref(i)
+			set SourceText=##class(Scrumbler.TechnoDoc.SourceText).%New()
+			//set SourceText.Body=$ZCONVERT(SourceT.Body,"I","UTF8")
+			set SourceText.Body=$ZCONVERT(SourceT.Body,"I","UTF8")
+			//set SourceText.Body=$System.Encryption.Base64Encode($ZCONVERT(SourceT.Body,"I","UTF8")
+			set SourceText.Language=$ZCONVERT(SourceT.Language,"I","UTF8")
+			set SourceText.Title=$ZCONVERT(SourceT.Title,"I","UTF8")
+			set SourceText.Description=$ZCONVERT(SourceT.Description,"I","UTF8")
+			set SourceText.TechnoDoc=TechnoDoc
+			set SourceText.Company=company
+			set SourceText.Author=user
+			$$$THROWONERROR(st,SourceText.%Save())			
+		}
+	}
+	if (obj.Targets'=""){
+		for i=1:1:obj.Targets.Size {
+			set T= obj.Targets.Oref(i)
+			set Target=##class(Scrumbler.TechnoDoc.Target).%New()
+			set Target.Target=$ZCONVERT(T.Target,"I","UTF8")
+			set Target.TechnoDoc=TechnoDoc
+			set Target.Company=company
+			set Target.Author=user
+			set Target.Type=Type
+			$$$THROWONERROR(st,Target.%Save())			
+		}
+	}
+	
+	}
+	Catch ex{set st=ex.AsStatus()}
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocByID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	#dim SQL As %String=""
+	if (##class(Scrumbler.TechnoDoc).%ExistsId(ID)){
+		set SQL="SELECT "_
+					"ID, Annotation, Type, "_
+					"Util.Util_GetTechnoDocSourcesJSON(ID) As Sources,  "_
+					"Util.Util_GetTechnoDocSourceTextsJSON(ID) As SourceTexts,  "_
+					"Util.Util_GetTechnoDocTargetsJSON(ID) As Targets,  "_
+					"Author->FirstName, Author->LastName, Author->Gravatar "_
+				"FROM Scrumbler.TechnoDoc "_
+				"WHERE ID="_ID
+		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL)
+	}
+	//w !," TechnoDoc "_SQL
+	Q st
+]]></Implementation>
+</Method>
+
+<Method name="GetTechnoDocsByTaskID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	#dim st As %Status=$$$OK
+	#dim SQL As %String=""
+	if (##class(Scrumbler.Task).%ExistsId(ID)){
+		w "{""TechnoDocs"":"_##class(Util.Util).GetTechnoDocsByTaskID(ID)_","_
+		  " ""Comments"":"
+		  do ##class(Scrumbler.Logic.Comment).GetCommentByTask(ID)
+		  w "}"		
+	}
+	
+	Q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

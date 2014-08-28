@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.Logic.TestJSON">
+<TimeCreated>63393,48523.722989</TimeCreated>
+
+<Method name="A1">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>Param:%Text=""</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set HttpRequest=##class(%Net.HttpRequest).%New()
+	set HttpRequest.Location="91.247.68.36:8090/csp/mdg-scrumbler-2/"
+	set HttpRequest.Timeout=5
+
+	set HttpRequest.Server="91.247.68.36"
+	set HttpRequest.Port="8090"
+
+	set str="{""name"":""newrepo""}"
+	
+	set HttpRequest.ContentType="application/json"
+	set temp=##class(%FileCharacterStream).%New()
+	set temp.TranslateTable="UTF8"
+	do temp.Write(str)
+	
+	set HttpRequest.EntityBody=temp
+	set st= HttpRequest.Post("/scrum/JSON/Test")
+
+
+	
+	set Response=HttpRequest.HttpResponse.Data.Read()
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(Response,,.obj,1))
+	zw obj
+	zw Response
+	q st
+]]></Implementation>
+</Method>
+
+<Method name="S1">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	//w "uyu oygouyouygouyg",!
+	set obj=##class(%ZEN.proxyObject).%New()
+	$$$THROWONERROR(st,##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1))
+	
+	do obj.%ToJSON()
+	q st
+]]></Implementation>
+</Method>
+</Class>
+</Export>

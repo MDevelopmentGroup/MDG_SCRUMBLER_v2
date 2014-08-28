@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Template.Template">
+<Super>%Persistent</Super>
+<TimeCreated>63274,54470.492454</TimeCreated>
+
+<Property name="Lang">
+<Type>%String</Type>
+</Property>
+
+<Property name="Template">
+<Type>%ArrayOfDataTypes</Type>
+</Property>
+
+<Property name="Name">
+<Type>%String</Type>
+</Property>
+
+<Property name="Rule">
+<Type>Template.Rule</Type>
+</Property>
+
+<Index name="RuleIndex">
+<Properties>Rule</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Template.TemplateD</DataLocation>
+<DefaultData>TemplateDefaultData</DefaultData>
+<IdLocation>^Template.TemplateD</IdLocation>
+<IndexLocation>^Template.TemplateI</IndexLocation>
+<StreamLocation>^Template.TemplateS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="TemplateDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Language</Value>
+</Value>
+<Value name="3">
+<Value>Template</Value>
+</Value>
+<Value name="4">
+<Value>Name</Value>
+</Value>
+<Value name="5">
+<Value>Rule</Value>
+</Value>
+<Value name="6">
+<Value>Lang</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

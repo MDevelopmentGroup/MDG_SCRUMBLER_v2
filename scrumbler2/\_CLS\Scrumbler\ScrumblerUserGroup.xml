@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Scrumbler.ScrumblerUserGroup">
+<Super>%Persistent</Super>
+<TimeCreated>63357,39637.043712</TimeCreated>
+
+<Property name="Settings">
+<Description>
+Настройки прав пользователя в группе</Description>
+<Type>Scrumbler.Settings.ScrumblerUserGroup</Type>
+</Property>
+
+<Property name="ScrumblerUser">
+<Description>
+Пользователь в группе</Description>
+<Type>Scrumbler.ScrumblerUser</Type>
+<Cardinality>one</Cardinality>
+<Inverse>ScrumblerUserGroups</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ScrumblerUserIndex">
+<Properties>ScrumblerUser</Properties>
+</Index>
+
+<Property name="ScrumblerGroup">
+<Description>
+Группа</Description>
+<Type>Scrumbler.ScrumblerGroup</Type>
+<Cardinality>one</Cardinality>
+<Inverse>ScrumblerUserGroups</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="ScrumblerGroupIndex">
+<Properties>ScrumblerGroup</Properties>
+</Index>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Scrumbler.ScrumblerUserGroupD</DataLocation>
+<DefaultData>ScrumblerUserGroupDefaultData</DefaultData>
+<IdLocation>^Scrumbler.ScrumblerUserGroupD</IdLocation>
+<IndexLocation>^Scrumbler.ScrumblerUserGroupI</IndexLocation>
+<StreamLocation>^Scrumbler.ScrumblerUserGroupS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="ScrumblerUserGroupDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Settings</Value>
+</Value>
+<Value name="3">
+<Value>ScrumblerUser</Value>
+</Value>
+<Value name="4">
+<Value>ScrumblerGroup</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>
